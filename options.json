@@ -1,5 +1,5 @@
 {
-    "sets": ["math", "b", "c"],
+    "sets": ["math", "b", "c", "add option"],
     "math": {
         "int": "\\int dx",
         "ddx": "\\frac{d}{dx}",
