@@ -1,19 +1,22 @@
 {
-    "sets": ["math", "b", "c", "add option"],
-    "math": {
-        "int": "\\int dx",
-        "ddx": "\\frac{d}{dx}",
-        "fun": "f(x)",
-        "gfun": "g(x)",
-        "hfun": "h(x)",
-        "frac": "\\frac{}{}",
-        "pip": "\\mid",
-        "npip": "\\mid"
-    },
-    "b": {
-
-    },
-    "c": {
-
+    "_keyset_list": [
+        "math",
+        "b",
+        "c",
+        "add option"
+    ],
+    "_keysets": {
+        "b": {},
+        "c": {},
+        "math": {
+            "ddx": "\\frac{d}{dx}",
+            "frac": "\\frac{}{}",
+            "fun": "f(x)",
+            "gfun": "g(x)",
+            "hfun": "h(x)",
+            "int": "\\int dx",
+            "npip": "\\mid",
+            "pip": "\\mid"
+        }
     }
 }
