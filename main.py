@@ -14,9 +14,12 @@ def main():
         selected_integer = consolemenu.SelectionMenu.get_selection(option_manager.get_all_keysets())
         match selected_integer:
             case 0:
-                option_manager.add_keyset("test", {"a": "b", "c": "d"})
+                pass
         option_manager.write()
 
+def add_option_menu(option_manager):
+    while True:
+        keystroke = str(input("Enter the keystroke. To cancel enter 'esc'"))
 
 class OptionManager(object):
     """A class that manages `options.json`"""
