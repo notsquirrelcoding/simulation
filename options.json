@@ -1,9 +1,10 @@
 {
     "_keyset_list": [
+        "add new keyset",
+        "delete keyset",
         "math",
         "b",
-        "c",
-        "add option"
+        "c"
     ],
     "_keysets": {
         "b": {},
@@ -17,6 +18,10 @@
             "int": "\\int dx",
             "npip": "\\mid",
             "pip": "\\mid"
+        },
+        "test": {
+            "a": "b",
+            "c": "d"
         }
     }
 }

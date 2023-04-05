@@ -1,8 +1,8 @@
 """Import dependencies"""
 import json
-# import consolemenu
-# import keyboard
-# from termcolor import colored
+import consolemenu
+import keyboard
+from termcolor import colored
 
 
 def main():
@@ -11,22 +11,11 @@ def main():
     with open("options.json", encoding="utf8") as option_file:
         options = json.load(option_file)
         option_manager = OptionManager(**options)
-        print(option_manager.get_keyset("math"))
-
-        # keysets = options["sets"]
-        # selected_integer = consolemenu.SelectionMenu.get_selection(keysets)
-
-        # # The last option is to add and len()-1 is the last option
-        # if selected_integer == len(keysets) - 1:
-        #     pass
-        # else:
-        #     keyset = keysets[selected_integer]
-        #     for key, value in options[keyset].items():
-        #         keyboard.add_abbreviation(key, value)
-
-        #     msg = f"Currently running keyset '{keysets[selected_integer]}'"
-        #     print(colored(msg, "red", attrs=["bold"]))
-        #     keyboard.wait()
+        selected_integer = consolemenu.SelectionMenu.get_selection(option_manager.get_all_keysets())
+        match selected_integer:
+            case 0:
+                option_manager.add_keyset("test", {"a": "b", "c": "d"})
+        option_manager.write()
 
 
 class OptionManager(object):
@@ -45,11 +34,15 @@ class OptionManager(object):
 
     def get_all_keysets(self) -> list:
         """Returns all the keysets from `options.json`"""
-        return self._keysets
+        return self._keyset_list
 
     def get_keyset(self, name: str) -> dict:
         """Returns a specific keyset given a name."""
         return self._keysets.get(name)
+
+    def add_keyset(self, keyset_name: str, keyset: dict):
+        """Adds a keyset to the list."""
+        self._keysets.update({keyset_name: keyset})
 
     def __to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__,
