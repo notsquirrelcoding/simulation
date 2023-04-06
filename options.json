@@ -11,6 +11,7 @@
         "c": {},
         "math": {
             "ddx": "\\frac{d}{dx}",
+            "eq": "=",
             "frac": "\\frac{}{}",
             "fun": "f(x)",
             "gfun": "g(x)",
@@ -19,9 +20,6 @@
             "npip": "\\mid",
             "pip": "\\mid"
         },
-        "test": {
-            "a": "b",
-            "c": "d"
-        }
+        "test": "testt"
     }
 }

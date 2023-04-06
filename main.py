@@ -1,56 +1,43 @@
 """Import dependencies"""
 import json
-import consolemenu
-import keyboard
-from termcolor import colored
-
+# import consolemenu
+# from termcolor import colored
+# from option_manager import OptionManager
+import time
+from rich.console import Console
 
 def main():
     """The main function where all the magic happens"""
+    console = Console()
+    console.rule("[bold white]Menu")
+    
 
-    with open("options.json", encoding="utf8") as option_file:
-        options = json.load(option_file)
-        option_manager = OptionManager(**options)
-        selected_integer = consolemenu.SelectionMenu.get_selection(option_manager.get_all_keysets())
-        match selected_integer:
-            case 0:
-                pass
-        option_manager.write()
 
-def add_option_menu(option_manager):
-    while True:
-        keystroke = str(input("Enter the keystroke. To cancel enter 'esc'"))
+    # with open("options.json", encoding="utf8") as option_file:
+    #     options = json.load(option_file)
+    #     option_manager = OptionManager(**options)
+    #     selected_integer = consolemenu.SelectionMenu.get_selection(option_manager.get_all_keysets())
+    #     match selected_integer:
+    #         case 0:
+    #             add_option_menu(option_manager)
 
-class OptionManager(object):
-    """A class that manages `options.json`"""
+    #     option_manager.write()
 
-    def __init__(self, _keyset_list: list, _keysets: dict) -> None:
-        self._keyset_list = _keyset_list
-        self._keysets = _keysets
+# def add_option_menu(option_manager: OptionManager):
+#     """A function that handles the frontend for user input"""
 
-    def write(self) -> None:
-        """Writes the data in this class back to `options.json`."""
+#     keyset_name = str(input("Enter the name of the keyset:"))
+#     if not option_manager.keyset_exists(keyset_name):
+#         print(colored(f"Keyset '{keyset_name}' does not exist.", "red", attrs=["bold"]))
+#         return
 
-        with open("options.json", "w", encoding="utf8") as options_file:
-            class_as_json = self.__to_json()
-            options_file.write(class_as_json)
-
-    def get_all_keysets(self) -> list:
-        """Returns all the keysets from `options.json`"""
-        return self._keyset_list
-
-    def get_keyset(self, name: str) -> dict:
-        """Returns a specific keyset given a name."""
-        return self._keysets.get(name)
-
-    def add_keyset(self, keyset_name: str, keyset: dict):
-        """Adds a keyset to the list."""
-        self._keysets.update({keyset_name: keyset})
-
-    def __to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
+#     while True:
+#         keystroke = str(input("Enter the keystroke. (To end enter 'end')"))
+#         if keystroke == "end":
+#             break
+#         typee = str(input("Enter the phrase: "))
+#         option_manager.add_entry(keyset_name, keystroke, typee)
+    
 
 if __name__ == "__main__":
     main()
