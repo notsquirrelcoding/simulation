@@ -1,3 +1,4 @@
 import random
 
-print(random.normalvariate(mu=0.5, sigma=0.9))
+for i in range(10):
+    print(f"{i} : {random.random()}")
