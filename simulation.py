@@ -10,9 +10,15 @@ class Simulation:
         self.time = 0
     def run(self):
         """Runs the simulation."""
-        pass
+        for t in range(100):
+            group: Group
+            for group in self.groups:
+                group.infect_step()
+                self.display_data()
+                print("==========================================================================")
+            self.time += t
 
-    def display_date(self):
+    def display_data(self):
         """Displays the current data"""
         print(f"t={self.time}")
         group: Group

@@ -3,6 +3,5 @@ from group import Group
 
 
 if __name__ == "__main__":
-    sim = Group(10)
-    print(sim.summarize())
-    
+    sim = Simulation(10, 10)
+    sim.run()
