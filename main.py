@@ -1,5 +1,8 @@
+from simulation import Simulation
 from group import Group
 
+
 if __name__ == "__main__":
-    groupp = Group(4)
-    groupp.infect_step()
+    sim = Group(10)
+    print(sim.summarize())
+    
