@@ -7,4 +7,5 @@ class GroupSummray(TypedDict):
     amount_dead: int
     amount_alive: int
     total_pop: int
+    group_id: int
     

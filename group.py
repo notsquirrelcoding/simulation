@@ -9,7 +9,7 @@ from sim_types import GroupSummray
 class Group:
     """A `Group` class. This class groups `Unit`s together and relates them."""
 
-    def __init__(self, num: int) -> None:
+    def __init__(self, num: int, group_id: int = -1) -> None:
         self._graph = Graph(n=num)
 
         contagability_levels = []
@@ -38,13 +38,19 @@ class Group:
 
         self.amount_dead = 0
         self.total_pop = num
+        self._is_wiped = False
+        self.group_id = group_id
 
-    def infect_step(self) -> None:
+    def infect_step(self) -> bool:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc."""
 
         # Loop through all the connections/edges
-        for edge in self._graph.es:
+        for edge in self._graph.es: # type: ignore
+            if self.amount_dead >= self.total_pop:
+                print(f"Group {self.group_id} wiped out.")
+                self._is_wiped = True
+                return True
 
             # Get the vertices in each edge
             source_vertex = self._graph.vs[edge.source].attributes()
@@ -52,16 +58,16 @@ class Group:
 
             # The probability that a contaigon will occur.
             will_infect = infection_p(source_vertex["contagability_level"] /
-                target_vertex["resistance_level"])
-            
+                (target_vertex["resistance_level"]* 10000))
             if will_infect:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["dead"] = True
                 self.amount_dead += 1
-
+        return False
+        
     def __str__(self) -> str:
         string: str = ""
-        for vertex in self._graph.vs:
+        for vertex in self._graph.vs: # type: ignore
             string += str(vertex.attributes())
             string += "\n"
 
@@ -75,5 +81,11 @@ class Group:
         return {
             "amount_dead": self.amount_dead,
             "amount_alive": self.total_pop - self.amount_dead,
-            "total_pop": self.total_pop
+            "total_pop": self.total_pop,
+            "group_id": self.group_id
         }
+    def is_wiped(self) -> bool:
+        """A function that returns a boolean indicating whether the
+        group has been wiped out."""
+        return self._is_wiped
+    

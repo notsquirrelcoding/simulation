@@ -6,7 +6,6 @@ def infection_p(level: float) -> bool:
     """A function determining whether or not a unit has been infected, 
     given it's vulnreability level. The probability is directy
     proportional to the given level."""
-    
     # The amount of comments (including this one) 
     # this function has is much more than the actual
     # code itself.
