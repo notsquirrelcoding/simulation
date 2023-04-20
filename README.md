@@ -16,3 +16,6 @@
 - Probability that someone will die
 - How the units will be connected (will connections be random?)
 - How do the number of dead people affect the simulation
+
+## Todo
+- Please put all of the files in a folder. this project is structured very badly.
