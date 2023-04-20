@@ -3,43 +3,49 @@ import random
 from igraph import Graph
 
 from defaults import prbl
-from sim_types import GroupSummray
+from sim_types import GroupSummray, UnitState, GroupConfig
+from unit import Unit
 
 
 class Group:
-    """A `Group` class. This class groups `Unit`s together and relates them."""
+    """A `Group` class. This class groups `Unit`s together and relates them
+    using a graph data structure."""
 
-    def __init__(self, num: int, group_id: int = -1) -> None:
-        self._graph = Graph(n=num)
+    def __init__(self, config: GroupConfig) -> None:
+        group_pop = config["group_pop"]
+
+        self._graph = Graph(n=group_pop)
 
         contagability_levels = []
         # Set the random contagability levels
-        for _ in range(num):
+        for _ in range(group_pop):
             contagability_levels.append(random.random())
 
         resistances = []
         # Set the random resistances
-        for _ in range(num):
+        for _ in range(group_pop):
             resistances.append(random.random())
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
-        self._graph.vs["dead"] = [False for _ in range(num)]
+        self._graph.vs["state"] = [UnitState.HEALTHY for _ in range(group_pop)]
 
         edges = []
 
         # Randomly add all the edges
-        for i in range(num):
-            for j in range(random.randint(1, num)):
+        for i in range(group_pop):
+            for j in range(random.randint(1, group_pop)):
                 edges.append((i, j))
 
         connections = list({tuple(sorted(i)) for i in edges})
         self._graph.add_edges(connections)
 
         self.amount_dead = 0
-        self.total_pop = num
+        self.total_pop = group_pop
         self._is_wiped = False
-        self.group_id = group_id
+        self.group_id = config["group_id"]
+
+
     def infect_step(self) -> bool:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc."""
