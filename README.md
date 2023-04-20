@@ -2,16 +2,17 @@
 
 ## Things to consider
 - The probability that someone will infect someone else and vice versa
-- Individual groups of people
+- ~~Individual groups of people~~
 - How people will actually infect one another
-- How multiple groups will be managed asynchronously
+- ~~How multiple groups will be managed asynchronously~~
 - Speed of contation
-- How to actually begin the pandemic (e.g where will it start, who will start it)
 - Options for starting the simulation
 
-## Start options
-- How vulnerable the people are
-- What percentage of the population is vulnerable
-
-## Probability that a unit will be infected given its vulnerability
-Let the user determine how a person will be infected. This software should be flexible.
+## Things to consider when making a group
+- ~~Population~~
+- How resistant/contagious units are
+- How long it takes for someone to recover/die
+- How contagious a preson is when they are in the state of recovering or something
+- Probability that someone will die
+- How the units will be connected (will connections be random?)
+- How do the number of dead people affect the simulation

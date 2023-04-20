@@ -2,7 +2,7 @@
 import random
 from igraph import Graph
 
-from defaults import infection_p
+from defaults import prbl
 from sim_types import GroupSummray
 
 
@@ -40,7 +40,6 @@ class Group:
         self.total_pop = num
         self._is_wiped = False
         self.group_id = group_id
-
     def infect_step(self) -> bool:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc."""
@@ -57,14 +56,13 @@ class Group:
             target_vertex = self._graph.vs[edge.target].attributes()
 
             # The probability that a contaigon will occur.
-            will_infect = infection_p(source_vertex["contagability_level"] /
+            will_infect = prbl(source_vertex["contagability_level"] /
                 (target_vertex["resistance_level"]* 10000))
             if will_infect:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["dead"] = True
                 self.amount_dead += 1
         return False
-        
     def __str__(self) -> str:
         string: str = ""
         for vertex in self._graph.vs: # type: ignore
