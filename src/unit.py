@@ -1,5 +1,13 @@
-import igraph as ig
-from sim_types import UnitState
+"""A module containing the `Unit` class."""
+from enum import Enum
+
+class UnitState(Enum):
+    """
+    An enum representing the states of a unit.
+    """
+    DEAD = 1
+    INTERMEDIATE = 2
+    HEALTHY = 3
 
 class Unit:
     """A unit in the simulation, this is used to place specific units in a group

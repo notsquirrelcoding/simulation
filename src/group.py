@@ -1,11 +1,29 @@
 """A module holding the `Group` class."""
 import random
+from typing import Callable, TypedDict
 from igraph import Graph
+from unit import Unit, UnitState
+from src.defaults import prbl
 
-from defaults import prbl
-from sim_types import GroupSummray, UnitState, GroupConfig
-from unit import Unit
+class GroupSummray(TypedDict):
+    """
+    A summary about a `Group`.
+    """
+    amount_dead: int
+    amount_alive: int
+    total_pop: int
+    group_id: int
 
+class GroupConfig(TypedDict):
+    """
+    A doct containing the configuration for a `Group` type.
+    """
+    group_pop: int
+    group_id: int
+    control_units: list[Unit]
+    control_edges: list[tuple[int, int]]
+    infect_pdf: Callable[[float], float]
+    resist_pdf: Callable[[float], float]
 
 class Group:
     """A `Group` class. This class groups `Unit`s together and relates them

@@ -1,16 +1,23 @@
 """A module containing `Simulation` class."""
 from pprint import pprint
-from group import Group
+from typing import Callable, TypedDict
+from group import GroupConfig, Group
 
+class SimulationConfig(TypedDict):
+    """
+    A dict containing the options for starting a `Simulation`.
+    """
+    group_pops: list[int]
+    pdf: Callable[[float], float]
 class Simulation:
     """The `Simulation` class that manages all the groups and
     actually runs the simulation."""
-    def __init__(self, num_groups: int, group_pop: int) -> None:
+    def __init__(self, group_configs: list[GroupConfig]) -> None:
         groups = []
-        for i in range(num_groups):
-            groups.append(Group(group_pop, group_id=i))
+        for config in group_configs:
+            groups.append(Group(config))
         self.groups = groups
-        self.num_groups = num_groups
+        self.num_groups = len(group_configs)
         self.time = 0
         self.dead_groups = 0
     def run(self):
@@ -38,3 +45,4 @@ class Simulation:
         group: Group
         for group in self.groups:
             pprint(group.summarize())
+
