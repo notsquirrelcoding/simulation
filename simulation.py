@@ -37,4 +37,3 @@ class Simulation:
         group: Group
         for group in self.groups:
             pprint(group.summarize())
-

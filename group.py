@@ -2,7 +2,7 @@
 import random
 from typing import Callable, TypedDict
 from igraph import Graph
-from unit import Unit, UnitConfig, UnitState
+from unit import UnitConfig, UnitState
 
 class GroupSummray(TypedDict):
     """

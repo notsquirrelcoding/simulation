@@ -12,7 +12,7 @@ def prbl(level: float) -> bool:
 def infect_prbl(a: float, b: float) -> bool:
     """A default function for determining whether two units will infect
     one another."""
-    return 0.1 * a > b
+    return 0.56 * a > b
 
 def normal_random() -> float:
     """A function that returns a random number """

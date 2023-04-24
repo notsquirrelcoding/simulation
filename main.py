@@ -1,7 +1,7 @@
 from simulation import Simulation
+from random import randint
 from group import GroupConfig
 from defaults import *
-from random import randint
 
 if __name__ == "__main__":
     group_options: list[GroupConfig] = []
