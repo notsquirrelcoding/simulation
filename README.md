@@ -1,21 +1,20 @@
 # Simulation
 
 ## Things to consider
-- The probability that someone will infect someone else and vice versa
+- ~~The probability that someone will infect someone else and vice versa~~
 - ~~Individual groups of people~~
-- How people will actually infect one another
+- ~~How people will actually infect one another~~
 - ~~How multiple groups will be managed asynchronously~~
-- Speed of contation
 - Options for starting the simulation
 
 ## Things to consider when making a group
 - ~~Population~~
-- How resistant/contagious units are
+- ~~How resistant/contagious units are~~
 - How long it takes for someone to recover/die
-- How contagious a preson is when they are in the state of recovering or something
+- How contagious a person is when they are in the state of recovering or something
 - Probability that someone will die
 - How the units will be connected (will connections be random?)
 - How do the number of dead people affect the simulation
 
 ## Todo
-- Please put all of the files in a folder. this project is structured very badly.
+-  put all of the files in a folder. project structured very badly.
