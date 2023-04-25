@@ -1,7 +1,6 @@
 """A module containing all the default functions"""
 import random
 
-
 def prbl(level: float) -> bool:
     """A function determining whether or not a unit has been infected, 
     given it's vulnreability level. The probability is directy
@@ -12,7 +11,7 @@ def prbl(level: float) -> bool:
 def infect_prbl(a: float, b: float) -> bool:
     """A default function for determining whether two units will infect
     one another."""
-    return 0.56 * a > b
+    return a > b
 
 def normal_random() -> float:
     """A function that returns a random number """
@@ -21,4 +20,3 @@ def normal_random() -> float:
 def rand_int(maximum: int) -> int:
     """A default random integer function"""
     return random.randint(1, maximum)
-    

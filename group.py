@@ -24,6 +24,7 @@ class GroupConfig(TypedDict):
     control_edges: list[tuple[int, int]]
     infect_pdf: Callable[[float, float], float]
     random_resistance: Callable[[], float]
+    random_contaigability: Callable[[], float]
     edge_prbl: Callable[[int], int]
 
 
@@ -33,39 +34,46 @@ class Group:
 
     def __init__(self, config: GroupConfig) -> None:
         group_pop = config["group_pop"]
-
         self._graph = Graph(n=group_pop)
+
+        is_control_group = False
+        if len(config["control_units"]) > 0:
+            assert len(config["control_units"]) == config["group_pop"]
+            is_control_group = True
 
         contagability_levels = []
         # Set the random contagability levels, using the random resistance function
-        for _ in range(group_pop):
-            contagability_levels.append(config["random_resistance"]())
+        # assuming that it's not a control group
+        if not is_control_group:
+            for _ in range(group_pop):
+                contagability_levels.append(config["random_contaigability"]())
 
         resistances = []
-        # Set the random resistances
-        for _ in range(group_pop):
-            resistances.append(random.random())
+        if not is_control_group:
+            for _ in range(group_pop):
+                resistances.append(config["random_resistance"]())
 
-        # Add the control levels
+        # Add the control unit levels of contaigability and resistance
         for control_unit in config["control_units"]:
             contagability_levels.append(control_unit["contagability_level"])
             resistances.append(control_unit["resistance_level"])
 
-        states = [UnitState.HEALTHY for _ in range(group_pop)]
+        states = []
+        if not is_control_group:
+            for _ in range(0, group_pop):
+                states.append(UnitState.HEALTHY)
+
         for unit in config["control_units"]:
             states.append(unit["state"])
-
-        # Set the arrays to the graph
-        self._graph.vs["contagability_level"] = contagability_levels
-        self._graph.vs["resistance_level"] = resistances
-        self._graph.vs["state"] = states
 
         edges = []
 
         # Randomly add all the edges
-        for i in range(group_pop):
-            for j in range(config["edge_prbl"](group_pop)):
-                edges.append((i, j))
+        if not is_control_group:
+            for i in range(group_pop):
+                amount_of_neighbors = config["edge_prbl"](group_pop)
+                for _ in range(amount_of_neighbors):
+                    edges.append((i, random.randint(1, group_pop - 1)))
         # Add all the control edges
         for edge in config["control_edges"]:
             edges.append(edge)
@@ -74,12 +82,17 @@ class Group:
         connections = list({tuple(sorted(i)) for i in edges})
         self._graph.add_edges(connections)
 
-        # Set the rest of the parametres
+        # Set the the parametres
         self.amount_dead = 0
         self.total_pop = group_pop
         self._is_wiped = False
         self.group_id = config["group_id"]
         self.infect_pdf = config["infect_pdf"]
+
+        # Set the data of the graph
+        self._graph.vs["contagability_level"] = contagability_levels
+        self._graph.vs["resistance_level"] = resistances
+        self._graph.vs["state"] = states
 
     def infect_step(self) -> bool:
         """This function is a step in the simulation. All it does is update 
