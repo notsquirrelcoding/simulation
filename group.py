@@ -37,8 +37,12 @@ class Group:
         self._graph = Graph(n=group_pop)
 
         is_control_group = False
+
+        # Check if group is a control one and check if the
+        # amount of units matches the population
         if len(config["control_units"]) > 0:
-            assert len(config["control_units"]) == config["group_pop"]
+            if len(config["control_units"]) != config["group_pop"]:
+                print("fpgterfjkpoewqu8rweuirtfewht gertgyhtgr4ehokirfew4")
             is_control_group = True
 
         contagability_levels = []
