@@ -30,4 +30,5 @@ def rand_int(maximum: int) -> int:
     return random.randint(1, maximum)
 
 def nothingness_pdf() -> float:
+    """PDF for nothing happening in a step in the simulation."""
     return random.random()

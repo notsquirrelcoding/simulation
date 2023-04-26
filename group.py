@@ -26,7 +26,7 @@ class GroupConfig(TypedDict):
     resistance_pdf: Callable[[], float]
     contaigability_pdf: Callable[[], float]
     edge_prbl: Callable[[int], int]
-    nothingness_pdf: Callable[[], float]
+    nothing_pdf: Callable[[], float]
 
 
 class Group:
@@ -51,12 +51,12 @@ class Group:
         # assuming that it's not a control group
         if not is_control_group:
             for _ in range(group_pop):
-                contagability_levels.append(config["random_contaigability"]())
+                contagability_levels.append(config["contaigability_pdf"]())
 
         resistances = []
         if not is_control_group:
             for _ in range(group_pop):
-                resistances.append(config["random_resistance"]())
+                resistances.append(config["resistance_pdf"]())
 
         # Add the control unit levels of contaigability and resistance
         for control_unit in config["control_units"]:
@@ -93,6 +93,7 @@ class Group:
         self._is_wiped = False
         self.group_id = config["group_id"]
         self.infect_pdf = config["infect_pdf"]
+        self.nothing_pdf = config["nothing_pdf"]
 
         # Set the data of the graph
         self._graph.vs["contagability_level"] = contagability_levels
@@ -105,11 +106,9 @@ class Group:
 
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
-            if self.amount_dead >= self.total_pop:
-                print(f"Group {self.group_id} wiped out.")
-                self._is_wiped = True
-                return True
 
+            if self.nothing_pdf() > 0.01:
+                continue
             # Get the vertices in each edge
             source_vertex: UnitConfig = self._graph.vs[edge.source].attributes()
             target_vertex: UnitConfig = self._graph.vs[edge.target].attributes()
@@ -121,6 +120,12 @@ class Group:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["dead"] = True
                 self.amount_dead += 1
+            # Finally check if all units are dead.
+            if self.amount_dead >= self.total_pop:
+                print(f"Group {self.group_id} wiped out.")
+                self._is_wiped = True
+                return True
+
         return False
 
     def __str__(self) -> str:

@@ -13,9 +13,9 @@ if __name__ == "__main__":
             "control_edges": [],
             "infect_pdf": defaults.infect_prbl,
             "edge_prbl": defaults.rand_int,
-            "random_resistance": defaults.resistance,
-            "random_contaigability": defaults.contaigability,
-            "nothingness_pdf": defaults.nothingness_pdf
+            "resistance_pdf": defaults.resistance,
+            "contaigability_pdf": defaults.contaigability,
+            "nothing_pdf": defaults.nothingness_pdf
         }
         group_options.append(options)
 
