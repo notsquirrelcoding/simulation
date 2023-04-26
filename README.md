@@ -18,3 +18,4 @@
 
 ## Todo
 -  put all of the files in a folder. project structured very badly.
+- Fix the bug where either all units in a group die or everyone is healthy. There is literally no in-between.

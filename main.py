@@ -5,7 +5,7 @@ import defaults
 
 if __name__ == "__main__":
     group_options: list[GroupConfig] = []
-    for i in range(1, 2):
+    for i in range(1, 10):
         options: GroupConfig = {
             "group_id": i,
             "group_pop": randint(3, 10),
