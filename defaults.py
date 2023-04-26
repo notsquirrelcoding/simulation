@@ -15,7 +15,15 @@ def infect_prbl(a: float, b: float) -> bool:
 
 def normal_random() -> float:
     """A function that returns a random number """
-    return random.normalvariate(1.6, 4.0) / 10
+    return random.normalvariate(0.5, 0.0001)
+
+def resistance() -> float:
+    """A function returning the resistance"""
+    return random.normalvariate(0.6, 0.25)
+
+def contaigability() -> float:
+    """A function returning the contaigability"""
+    return random.normalvariate(0.4, 0.25)
 
 def rand_int(maximum: int) -> int:
     """A default random integer function"""

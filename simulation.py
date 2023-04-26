@@ -1,5 +1,4 @@
 """A module containing `Simulation` class."""
-from pprint import pprint
 from group import GroupConfig, Group
 
 class Simulation:
@@ -28,7 +27,7 @@ class Simulation:
                 # If all groups are dead just return
                 if self.dead_groups >= self.num_groups:
                     return
-            # self.display_data()
+            self.display_data()
             print("==========================================================================")
             self.time += 1
     def display_data(self):
@@ -36,4 +35,4 @@ class Simulation:
         print(f"t={self.time}")
         group: Group
         for group in self.groups:
-            pprint(group.summarize())
+            print(group.summarize())
