@@ -23,9 +23,10 @@ class GroupConfig(TypedDict):
     control_units: list[UnitConfig]
     control_edges: list[tuple[int, int]]
     infect_pdf: Callable[[float, float], float]
-    random_resistance: Callable[[], float]
-    random_contaigability: Callable[[], float]
+    resistance_pdf: Callable[[], float]
+    contaigability_pdf: Callable[[], float]
     edge_prbl: Callable[[int], int]
+    nothingness_pdf: Callable[[], float]
 
 
 class Group:

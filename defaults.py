@@ -28,3 +28,6 @@ def contaigability() -> float:
 def rand_int(maximum: int) -> int:
     """A default random integer function"""
     return random.randint(1, maximum)
+
+def nothingness_pdf() -> float:
+    return random.random()
