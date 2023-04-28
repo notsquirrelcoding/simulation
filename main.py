@@ -18,6 +18,17 @@ if __name__ == "__main__":
             "nothing_pdf": defaults.nothingness_pdf
         }
         group_options.append(options)
-
+    group_options.append({
+            "group_id": 200,
+            "group_pop": randint(3, 10),
+            "control_units": [],
+            # TODO: Fix this error where the number of tuples does not match the number of control untis
+            "control_edges": [(1, 2)],
+            "infect_pdf": defaults.infect_prbl,
+            "edge_prbl": defaults.rand_int,
+            "resistance_pdf": defaults.resistance,
+            "contaigability_pdf": defaults.contaigability,
+            "nothing_pdf": defaults.nothingness_pdf
+        })
     simulation = Simulation(group_options, 2000)
     simulation.run()
