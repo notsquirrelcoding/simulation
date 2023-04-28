@@ -107,7 +107,7 @@ class Group:
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
 
-            if self.nothing_pdf() > 0.01:
+            if self.nothing_pdf() > 5:
                 continue
             # Get the vertices in each edge
             source_vertex: UnitConfig = self._graph.vs[edge.source].attributes()

@@ -11,15 +11,15 @@ def prbl(level: float) -> bool:
 def infect_prbl(a: float, b: float) -> bool:
     """A default function for determining whether two units will infect
     one another."""
-    return a > b
+    return prbl(a * b)
 
 def normal_random() -> float:
     """A function that returns a random number """
-    return random.normalvariate(0.5, 0.0001)
+    return random.normalvariate(0.5, 0.1)
 
 def resistance() -> float:
     """A function returning the resistance"""
-    return random.normalvariate(0.6, 0.25)
+    return random.normalvariate(0.5, 0.01)
 
 def contaigability() -> float:
     """A function returning the contaigability"""
