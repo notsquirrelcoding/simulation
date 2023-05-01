@@ -2,7 +2,8 @@
 import random
 from typing import Callable, TypedDict
 from igraph import Graph
-from unit import UnitConfig, UnitState
+from unit import UnitType, UnitState
+
 
 class GroupSummray(TypedDict):
     """
@@ -20,7 +21,7 @@ class GroupConfig(TypedDict):
     """
     group_pop: int
     group_id: int
-    control_units: list[UnitConfig]
+    control_units: list[UnitType]
     control_edges: list[tuple[int, int]]
     infect_pdf: Callable[[float, float], float]
     resistance_pdf: Callable[[], float]
@@ -41,10 +42,18 @@ class Group:
 
         # Check if group is a control one and check if the
         # amount of units matches the population
-        if len(config["control_units"]) > 0:
-            if len(config["control_units"]) != config["group_pop"]:
-                print("fpgterfjkpoewqu8rweuirtfewht gertgyhtgr4ehokirfew4")
+        idd = config["group_id"]
+        ctrl_units_len = len(config["control_units"])
+        if (ctrl_units_len == group_pop and
+            ctrl_units_len > 0):
             is_control_group = True
+        elif (ctrl_units_len != group_pop and
+            ctrl_units_len > 0):
+            raise TypeError(
+                "Number of control units does not match population.")
+        if len(config["control_units"]) == 0 and len(config["control_edges"]) > 0:
+            raise TypeError(
+                "There exist control group edges for nonexistent units.")
 
         contagability_levels = []
         # Set the random contagability levels, using the random resistance function
@@ -57,12 +66,7 @@ class Group:
         if not is_control_group:
             for _ in range(group_pop):
                 resistances.append(config["resistance_pdf"]())
-
-        # Add the control unit levels of contaigability and resistance
-        for control_unit in config["control_units"]:
-            contagability_levels.append(control_unit["contagability_level"])
-            resistances.append(control_unit["resistance_level"])
-
+        # Add the states
         states = []
         if not is_control_group:
             for _ in range(0, group_pop):
@@ -70,10 +74,12 @@ class Group:
 
         for unit in config["control_units"]:
             states.append(unit["state"])
+            resistances.append(unit["contagability_level"])
+            contagability_levels.append(unit["resistance_level"])
 
         edges = []
 
-        # Randomly add all the edges
+        # Randomly add all the edges if it's not a control group
         if not is_control_group:
             for i in range(group_pop):
                 amount_of_neighbors = config["edge_prbl"](group_pop)
@@ -83,11 +89,11 @@ class Group:
         for edge in config["control_edges"]:
             edges.append(edge)
 
-        # Get rid of duplicates and add the edges
+        # Get rid of duplicates and add the edges by converting it into a set and back
         connections = list({tuple(sorted(i)) for i in edges})
         self._graph.add_edges(connections)
 
-        # Set the the parametres
+        # Set the the parameters
         self.amount_dead = 0
         self.total_pop = group_pop
         self._is_wiped = False
@@ -95,7 +101,6 @@ class Group:
         self.infect_pdf = config["infect_pdf"]
         self.nothing_pdf = config["nothing_pdf"]
 
-        # Set the data of the graph
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
@@ -107,15 +112,18 @@ class Group:
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
 
+            # TODO: Change this in some way but this dont look right
             if self.nothing_pdf() > 5:
                 continue
-            # Get the vertices in each edge
-            source_vertex: UnitConfig = self._graph.vs[edge.source].attributes()
-            target_vertex: UnitConfig = self._graph.vs[edge.target].attributes()
+            source_vertex: UnitType = self._graph.vs[edge.source].attributes()
+            target_vertex: UnitType = self._graph.vs[edge.target].attributes()
 
             # The probability that a contaigon will occur.
             will_infect = self.infect_pdf(
                 source_vertex["contagability_level"], target_vertex["resistance_level"])
+            
+            s_c = source_vertex["contagability_level"]
+            t_r = target_vertex["resistance_level"]
             if will_infect:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["dead"] = True

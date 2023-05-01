@@ -8,6 +8,7 @@ class Simulation:
         groups = []
         for config in group_configs:
             groups.append(Group(config))
+
         self.groups = groups
         self.num_groups = len(group_configs)
         self.time = 0
