@@ -27,7 +27,7 @@ class GroupConfig(TypedDict):
     resistance_pdf: Callable[[], float]
     contaigability_pdf: Callable[[], float]
     edge_prbl: Callable[[int], int]
-    nothing_pdf: Callable[[], float]
+    nothing_pdf: Callable[[], bool]
 
 
 class Group:
@@ -42,7 +42,6 @@ class Group:
 
         # Check if group is a control one and check if the
         # amount of units matches the population
-        idd = config["group_id"]
         ctrl_units_len = len(config["control_units"])
         if (ctrl_units_len == group_pop and
             ctrl_units_len > 0):
@@ -113,7 +112,7 @@ class Group:
         for edge in self._graph.es:  # type: ignore
 
             # TODO: Change this in some way but this dont look right
-            if self.nothing_pdf() > 5:
+            if self.nothing_pdf():
                 continue
             source_vertex: UnitType = self._graph.vs[edge.source].attributes()
             target_vertex: UnitType = self._graph.vs[edge.target].attributes()
@@ -121,11 +120,10 @@ class Group:
             # The probability that a contaigon will occur.
             will_infect = self.infect_pdf(
                 source_vertex["contagability_level"], target_vertex["resistance_level"])
-            
-            s_c = source_vertex["contagability_level"]
-            t_r = target_vertex["resistance_level"]
             if will_infect:
                 # Set the infected attribute on the target edge to True.
+                # TODO: Try to do something like taking the source vertex, writing to it and writing it back to the array of vertices
+                # TODO: Also instead of having the "dead" parameter in the list, use the UnitState enum.
                 self._graph.vs[edge.target]["dead"] = True
                 self.amount_dead += 1
             # Finally check if all units are dead.

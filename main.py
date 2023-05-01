@@ -4,18 +4,20 @@ from group import GroupConfig
 from unit import UnitType, UnitState
 import defaults
 
+# TODO: find out why control units are immortal
+
 if __name__ == "__main__":
     group_options: list[GroupConfig] = []
 
     control_unit_1 = UnitType({
-        "contagability_level": 0.0,
-        "resistance_level": 0.0,
+        "contagability_level": 0.31,
+        "resistance_level": 0.24,
         "state": UnitState.HEALTHY,
     })
 
     control_unit_2 = UnitType({
-        "contagability_level": 0.0,
-        "resistance_level": 0.0,
+        "contagability_level": 0.3,
+        "resistance_level": 0.25,
         "state": UnitState.HEALTHY,
     })
 

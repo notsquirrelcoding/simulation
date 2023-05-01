@@ -29,6 +29,6 @@ def rand_int(maximum: int) -> int:
     """A default random integer function"""
     return random.randint(1, maximum)
 
-def nothingness_pdf() -> float:
+def nothingness_pdf() -> bool:
     """PDF for nothing happening in a step in the simulation."""
-    return random.random()
+    return bool(random.getrandbits(1))
