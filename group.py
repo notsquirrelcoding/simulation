@@ -23,11 +23,12 @@ class GroupConfig(TypedDict):
     group_id: int
     control_units: list[UnitType]
     control_edges: list[tuple[int, int]]
-    infect_pdf: Callable[[float, float], float]
+    infect_pdf: Callable[[UnitType, UnitType], float]
     resistance_pdf: Callable[[], float]
     contaigability_pdf: Callable[[], float]
     edge_prbl: Callable[[int], int]
     nothing_pdf: Callable[[], bool]
+    death_pdf: Callable[[float], bool]
 
 
 class Group:
@@ -108,10 +109,15 @@ class Group:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc."""
 
+        # Loop through the recovering
+        vertex: UnitType
+        for vertex in self._graph.vs: # type: ignore
+            if vertex["state"] == UnitState.HEALTHY:
+                continue
+
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
 
-            # TODO: Change this in some way but this dont look right
             if self.nothing_pdf():
                 continue
             source_vertex: UnitType = self._graph.vs[edge.source].attributes()
@@ -119,13 +125,12 @@ class Group:
 
             # The probability that a contaigon will occur.
             will_infect = self.infect_pdf(
-                source_vertex["contagability_level"], target_vertex["resistance_level"])
-            if will_infect:
+                source_vertex, target_vertex)
+            if will_infect and source_vertex["state"] == UnitState.HEALTHY:
                 # Set the infected attribute on the target edge to True.
-                # TODO: Try to do something like taking the source vertex, writing to it and writing it back to the array of vertices
-                # TODO: Also instead of having the "dead" parameter in the list, use the UnitState enum.
-                self._graph.vs[edge.target]["dead"] = True
+                self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
                 self.amount_dead += 1
+
             # Finally check if all units are dead.
             if self.amount_dead >= self.total_pop:
                 print(f"Group {self.group_id} wiped out.")

@@ -1,23 +1,21 @@
 from random import randint
 from simulation import Simulation
-from group import GroupConfig
+from group import GroupConfig, Group
 from unit import UnitType, UnitState
 import defaults
-
-# TODO: find out why control units are immortal
 
 if __name__ == "__main__":
     group_options: list[GroupConfig] = []
 
     control_unit_1 = UnitType({
-        "contagability_level": 0.31,
-        "resistance_level": 0.24,
+        "contagability_level": 1.0,
+        "resistance_level": 0.001,
         "state": UnitState.HEALTHY,
     })
 
     control_unit_2 = UnitType({
-        "contagability_level": 0.3,
-        "resistance_level": 0.25,
+        "contagability_level": 0.001,
+        "resistance_level": 1.0,
         "state": UnitState.HEALTHY,
     })
 
@@ -32,20 +30,22 @@ if __name__ == "__main__":
             "edge_prbl": defaults.rand_int,
             "resistance_pdf": defaults.resistance,
             "contaigability_pdf": defaults.contaigability,
-            "nothing_pdf": defaults.nothingness_pdf
+            "nothing_pdf": defaults.nothingness_pdf,
+            "death_pdf": defaults.death_pdf
         }
         group_options.append(options)
 
-    group_options.append({
+    control_group: Group = Group({
         "group_id": 200,
         "group_pop": 2,
         "control_units": [control_unit_1, control_unit_2],
-        "control_edges": [],
+        "control_edges": [(0, 1)],
         "infect_pdf": defaults.infect_prbl,
         "edge_prbl": defaults.rand_int,
         "resistance_pdf": defaults.resistance,
         "contaigability_pdf": defaults.contaigability,
         "nothing_pdf": defaults.nothingness_pdf,
+        "death_pdf": defaults.death_pdf
     })
 
     simulation = Simulation(group_options, 2000)
