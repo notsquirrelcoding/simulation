@@ -1,6 +1,6 @@
 from random import randint
 from simulation import Simulation
-from group import GroupConfig, Group
+from group import GroupConfig
 from unit import UnitType, UnitState
 import defaults
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         }
         group_options.append(options)
 
-    control_group: Group = Group({
+    control_group: GroupConfig = {
         "group_id": 200,
         "group_pop": 2,
         "control_units": [control_unit_1, control_unit_2],
@@ -46,7 +46,8 @@ if __name__ == "__main__":
         "contaigability_pdf": defaults.contaigability,
         "nothing_pdf": defaults.nothingness_pdf,
         "death_pdf": defaults.death_pdf
-    })
+    }
+    group_options.append(control_group)
 
     simulation = Simulation(group_options, 2000)
     simulation.run()

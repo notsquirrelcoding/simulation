@@ -28,8 +28,8 @@ class Simulation:
                 # If all groups are dead just return
                 if self.dead_groups >= self.num_groups:
                     return
-            # self.display_data()
-            # print("==========================================================================")
+            self.display_data()
+            print("==========================================================================")
             self.time += 1
     def display_data(self):
         """Displays the current data"""
