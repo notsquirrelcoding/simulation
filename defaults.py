@@ -10,6 +10,8 @@ def prbl(level: float) -> bool:
     random_num = random.random()
     return level > random_num
 
+# TODO: Make a more reasonable infect_prbl function
+
 def infect_prbl(source: UnitType, target: UnitType) -> bool: # type: ignore
     """A default function for determining whether two units will infect
     one another."""
