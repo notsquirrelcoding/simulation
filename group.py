@@ -45,10 +45,10 @@ class Group:
         # amount of units matches the population
         ctrl_units_len = len(config["control_units"])
         if (ctrl_units_len == group_pop and
-            ctrl_units_len > 0):
+                ctrl_units_len > 0):
             is_control_group = True
         elif (ctrl_units_len != group_pop and
-            ctrl_units_len > 0):
+              ctrl_units_len > 0):
             raise TypeError(
                 "Number of control units does not match population.")
         if len(config["control_units"]) == 0 and len(config["control_edges"]) > 0:
@@ -74,8 +74,8 @@ class Group:
 
         for unit in config["control_units"]:
             states.append(unit["state"])
-            resistances.append(unit["contagability_level"])
-            contagability_levels.append(unit["resistance_level"])
+            resistances.append(unit["resistance_level"])
+            contagability_levels.append(unit["contagability_level"])
 
         edges = []
 
@@ -111,13 +111,12 @@ class Group:
 
         # Loop through the recovering
         vertex: UnitType
-        for vertex in self._graph.vs: # type: ignore
+        for vertex in self._graph.vs:  # type: ignore
             if vertex["state"] == UnitState.HEALTHY:
                 continue
 
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
-
             if self.nothing_pdf():
                 continue
             source_vertex: UnitType = self._graph.vs[edge.source].attributes()
@@ -138,6 +137,30 @@ class Group:
                 return True
 
         return False
+
+    def emit_unit(self, unit: UnitType) -> UnitType:
+        """A group that emits a unit so that it can be transferred to another group"""
+        print(unit)
+
+        # Get the vertex ID of the unit
+        vertex: UnitType
+        for vertex in self._graph.vs:  # type: ignore
+            print(vertex["contagability_level"])
+            # Definetely a better way to do this by implementing some some sort of python
+            # equivilent to Rust's `Into` trait.
+            if (
+                vertex["state"] == unit["state"]
+                and vertex["contagability_level"] == unit["contagability_level"]
+                and vertex["resistance_level"] == unit["resistance_level"]
+            ):
+                pass
+
+        # Get the units neighbors
+        for edge in self._graph.es:  # type: ignore
+            if edge.source == 1 or edge.target == 1:
+                pass
+
+        return unit
 
     def __str__(self) -> str:
         string: str = ""

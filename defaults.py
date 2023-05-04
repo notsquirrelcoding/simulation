@@ -10,8 +10,6 @@ def prbl(level: float) -> bool:
     random_num = random.random()
     return level > random_num
 
-# TODO: Make a more reasonable infect_prbl function
-
 def infect_prbl(source: UnitType, target: UnitType) -> bool: # type: ignore
     """A default function for determining whether two units will infect
     one another."""
@@ -19,8 +17,7 @@ def infect_prbl(source: UnitType, target: UnitType) -> bool: # type: ignore
         return False
 
     f_1 = source["resistance_level"] * target["contagability_level"]
-    f_2 = source["contagability_level"] * target["resistance_level"]
-    return prbl(f_1 * f_2)
+    return prbl(f_1)
 
 def normal_random() -> float:
     """A function that returns a random number """

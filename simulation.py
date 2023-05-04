@@ -31,6 +31,11 @@ class Simulation:
             self.display_data()
             print("==========================================================================")
             self.time += 1
+
+    def group_transfer(self):
+        """A function that transfers a unit between groups"""
+        pass
+    
     def display_data(self):
         """Displays the current data"""
         print(f"t={self.time}")
