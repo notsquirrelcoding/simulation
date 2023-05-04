@@ -1,7 +1,7 @@
 """A module holding the `Group` class."""
 import random
 from typing import Callable, TypedDict
-from igraph import Graph
+from igraph import Graph, Vertex
 from unit import UnitType, UnitState
 
 
@@ -140,12 +140,12 @@ class Group:
 
     def emit_unit(self, unit: UnitType) -> UnitType:
         """A group that emits a unit so that it can be transferred to another group"""
-        print(unit)
-
         # Get the vertex ID of the unit
+
+        chosen_vertex: Vertex | None = None
+
         vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
-            print(vertex["contagability_level"])
             # Definetely a better way to do this by implementing some some sort of python
             # equivilent to Rust's `Into` trait.
             if (
@@ -153,8 +153,11 @@ class Group:
                 and vertex["contagability_level"] == unit["contagability_level"]
                 and vertex["resistance_level"] == unit["resistance_level"]
             ):
-                pass
-
+                chosen_vertex = vertex
+        if chosen_vertex:
+            raise TypeError("Vertex not found in group.")
+        
+        print()
         # Get the units neighbors
         for edge in self._graph.es:  # type: ignore
             if edge.source == 1 or edge.target == 1:
