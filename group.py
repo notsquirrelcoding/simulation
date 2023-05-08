@@ -172,12 +172,15 @@ class Group:
         return unit
 
     def recieve_unit(self, unit: UnitType):
+        """A method that handles recieving a new unit."""
         edges = []
         new_id = self._graph.vcount()
         amount_of_neighbors = self.edge_pdf(self.total_pop - self.amount_dead)
-        print(f"Amount of neighbors: {amount_of_neighbors}")
         for _ in range(amount_of_neighbors):
             edges.append((new_id, random.randint(0, self.total_pop - 1)))
+
+        print(edges)
+
         self._graph.vs["contagability_level"].append(unit["contagability_level"])
         self._graph.vs["resistance_level"].append(unit["resistance_level"])
         self._graph.vs["state"].append(unit["state"])
