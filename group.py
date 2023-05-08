@@ -26,7 +26,7 @@ class GroupConfig(TypedDict):
     infect_pdf: Callable[[UnitType, UnitType], float]
     resistance_pdf: Callable[[], float]
     contaigability_pdf: Callable[[], float]
-    edge_prbl: Callable[[int], int]
+    edge_pdf: Callable[[int], int]
     nothing_pdf: Callable[[], bool]
     death_pdf: Callable[[float], bool]
 
@@ -82,7 +82,7 @@ class Group:
         # Randomly add all the edges if it's not a control group
         if not is_control_group:
             for i in range(group_pop):
-                amount_of_neighbors = config["edge_prbl"](group_pop)
+                amount_of_neighbors = config["edge_pdf"](group_pop)
                 for _ in range(amount_of_neighbors):
                     edges.append((i, random.randint(1, group_pop - 1)))
         # Add all the control edges
@@ -100,6 +100,7 @@ class Group:
         self.group_id = config["group_id"]
         self.infect_pdf = config["infect_pdf"]
         self.nothing_pdf = config["nothing_pdf"]
+        self.edge_pdf = config["edge_pdf"]
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
@@ -146,7 +147,7 @@ class Group:
 
         vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
-            # Definetely a better way to do this by implementing some some sort of python
+            # Definetely a better way to do this below by implementing some some sort of python
             # equivilent to Rust's `Into` trait.
             if (
                 vertex["state"] == unit["state"]
@@ -154,16 +155,33 @@ class Group:
                 and vertex["resistance_level"] == unit["resistance_level"]
             ):
                 chosen_vertex = vertex
-        if chosen_vertex:
+        if not chosen_vertex:
             raise TypeError("Vertex not found in group.")
         
-        print()
+        # TODO: Improve this line below to remove th eneed for ignoreing
+
+        chosen_vertex_id = chosen_vertex.index #type: ignore
+        edges = []
+
         # Get the units neighbors
         for edge in self._graph.es:  # type: ignore
-            if edge.source == 1 or edge.target == 1:
-                pass
+            if edge.source == chosen_vertex_id or edge.target == chosen_vertex_id:
+                edges.append(edge)
+        self._graph.delete_edges(edges)
 
         return unit
+
+    def recieve_unit(self, unit: UnitType):
+        edges = []
+        new_id = self._graph.vcount()
+        amount_of_neighbors = self.edge_pdf(self.total_pop - self.amount_dead)
+        print(f"Amount of neighbors: {amount_of_neighbors}")
+        for _ in range(amount_of_neighbors):
+            edges.append((new_id, random.randint(0, self.total_pop - 1)))
+        self._graph.vs["contagability_level"].append(unit["contagability_level"])
+        self._graph.vs["resistance_level"].append(unit["resistance_level"])
+        self._graph.vs["state"].append(unit["state"])
+        self._graph.add_edges(edges)
 
     def __str__(self) -> str:
         string: str = ""

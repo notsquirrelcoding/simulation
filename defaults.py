@@ -3,21 +3,21 @@ import random
 from unit import UnitType, UnitState
 Edges = list[tuple[int, int]]
 
-def prbl(level: float) -> bool:
+def pdf(level: float) -> bool:
     """A function determining whether or not a unit has been infected, 
     given it's vulnreability level. The probability is directy
     proportional to the given level."""
     random_num = random.random()
     return level > random_num
 
-def infect_prbl(source: UnitType, target: UnitType) -> bool: # type: ignore
+def infect_pdf(source: UnitType, target: UnitType) -> bool: # type: ignore
     """A default function for determining whether two units will infect
     one another."""
     if target["state"] == UnitState.DEAD:
         return False
 
     f_1 = source["resistance_level"] * target["contagability_level"]
-    return prbl(f_1)
+    return pdf(f_1)
 
 def normal_random() -> float:
     """A function that returns a random number """

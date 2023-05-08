@@ -12,13 +12,11 @@ if __name__ == "__main__":
         "resistance_level": 500.0,
         "state": UnitState.HEALTHY,
     })
-
     control_unit_2 = UnitType({
         "contagability_level": 0.5,
         "resistance_level": 0.5,
         "state": UnitState.HEALTHY,
     })
-    
     control_unit_3 = UnitType({
         "contagability_level": 100.0,
         "resistance_level": 100.0,
@@ -32,8 +30,8 @@ if __name__ == "__main__":
             "group_pop": randint(3, 10),
             "control_units": [],
             "control_edges": [],
-            "infect_pdf": defaults.infect_prbl,
-            "edge_prbl": defaults.rand_int,
+            "infect_pdf": defaults.infect_pdf,
+            "edge_pdf": defaults.rand_int,
             "resistance_pdf": defaults.resistance,
             "contaigability_pdf": defaults.contaigability,
             "nothing_pdf": defaults.nothingness_pdf,
@@ -43,15 +41,15 @@ if __name__ == "__main__":
 
     control_group = Group({
         "group_id": 1000,
-        "group_pop": 3,
-        "control_units": [control_unit_1, control_unit_2, control_unit_3],
-        "control_edges": [(0, 1), (1, 2)],
-        "infect_pdf": defaults.infect_prbl,
-        "edge_prbl": defaults.rand_int,
+        "group_pop": 2,
+        "control_units": [control_unit_1, control_unit_2],
+        "control_edges": [(0, 1)],
+        "infect_pdf": defaults.infect_pdf,
+        "edge_pdf": defaults.rand_int,
         "resistance_pdf": defaults.resistance,
         "contaigability_pdf": defaults.contaigability,
         "nothing_pdf": defaults.nothingness_pdf,
         "death_pdf": defaults.death_pdf
     })
-    control_group.emit_unit(control_unit_1)
-    
+    control_group.recieve_unit(control_unit_3)
+    print(control_group._graph)
