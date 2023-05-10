@@ -1,9 +1,8 @@
 """A module holding the `Group` class."""
 import random
-from typing import Callable, TypedDict
+from typing import Callable, TypedDict, Type
 from igraph import Graph, Vertex
 from unit import UnitType, UnitState
-
 
 class GroupSummray(TypedDict):
     """
@@ -13,7 +12,6 @@ class GroupSummray(TypedDict):
     amount_alive: int
     total_pop: int
     group_id: int
-
 
 class GroupConfig(TypedDict):
     """
@@ -29,7 +27,6 @@ class GroupConfig(TypedDict):
     edge_pdf: Callable[[int], int]
     nothing_pdf: Callable[[], bool]
     death_pdf: Callable[[float], bool]
-
 
 class Group:
     """A `Group` class. This class groups `Unit`s together and relates them
@@ -143,9 +140,8 @@ class Group:
         """A group that emits a unit so that it can be transferred to another group"""
         # Get the vertex ID of the unit
 
-        chosen_vertex: Vertex | None = None
+        chosen_vertex: Type[Vertex] | None = None
 
-        vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
             # Definetely a better way to do this below by implementing some some sort of python
             # equivilent to Rust's `Into` trait.
@@ -155,22 +151,14 @@ class Group:
                 and vertex["resistance_level"] == unit["resistance_level"]
             ):
                 chosen_vertex = vertex
+                break
         if not chosen_vertex:
             raise TypeError("Vertex not found in group.")
-        
-        # TODO: Improve this line below to remove th eneed for ignoreing
-
-        chosen_vertex_id = chosen_vertex.index #type: ignore
-        edges = []
-
-        # Get the units neighbors
-        for edge in self._graph.es:  # type: ignore
-            if edge.source == chosen_vertex_id or edge.target == chosen_vertex_id:
-                edges.append(edge)
-        self._graph.delete_edges(edges)
-
+        self._graph.delete_vertices(chosen_vertex.index) # type: ignore
         return unit
 
+    # TODO: Fix the bug.
+    # Also this link looks important: https://python.igraph.org/en/stable/tutorial.html#adding-deleting-vertices-and-edges:~:text=Vertex%20and%20edge%20IDs%20are%20always%20continuous%2C%20so%20if%20you%20delete%20a%20vertex%20all%20subsequent%20vertices%20will%20be%20renumbered.
     def recieve_unit(self, unit: UnitType):
         """A method that handles recieving a new unit."""
         edges = []
@@ -179,7 +167,7 @@ class Group:
         for _ in range(amount_of_neighbors):
             edges.append((new_id, random.randint(0, self.total_pop - 1)))
 
-        print(edges)
+        self._graph.add_vertices(1)
 
         self._graph.vs["contagability_level"].append(unit["contagability_level"])
         self._graph.vs["resistance_level"].append(unit["resistance_level"])
