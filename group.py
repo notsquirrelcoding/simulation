@@ -157,8 +157,6 @@ class Group:
         self._graph.delete_vertices(chosen_vertex.index) # type: ignore
         return unit
 
-    # TODO: Fix the bug.
-    # Also this link looks important: https://python.igraph.org/en/stable/tutorial.html#adding-deleting-vertices-and-edges:~:text=Vertex%20and%20edge%20IDs%20are%20always%20continuous%2C%20so%20if%20you%20delete%20a%20vertex%20all%20subsequent%20vertices%20will%20be%20renumbered.
     def recieve_unit(self, unit: UnitType):
         """A method that handles recieving a new unit."""
         edges = []

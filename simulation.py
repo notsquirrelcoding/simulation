@@ -20,11 +20,7 @@ class Simulation:
             group: Group
             for group in self.groups:
                 # If the group is not wiped then step through
-                if not group.is_wiped():
-                    # infect_step() returns true if the group dies out
-                    if group.infect_step():
-                        self.dead_groups += 1
-
+                self.group_step(group)
                 # If all groups are dead just return
                 if self.dead_groups >= self.num_groups:
                     return
@@ -32,10 +28,15 @@ class Simulation:
             print("==========================================================================")
             self.time += 1
 
+    def group_step(self, group: Group):
+        if not group.is_wiped():
+            # infect_step() returns true if the group dies out
+            if group.infect_step():
+                self.dead_groups += 1
+
     def group_transfer(self):
         """A function that transfers a unit between groups"""
         pass
-    
     def display_data(self):
         """Displays the current data"""
         print(f"t={self.time}")
