@@ -41,4 +41,4 @@ def nothingness_pdf() -> bool:
 
 def death_pdf(res: float) -> bool:
     """A function that determines whether somebody in recovering state will die."""
-    return res > 0.5
+    return res > random.random()

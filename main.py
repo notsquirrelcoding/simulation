@@ -59,3 +59,4 @@ if __name__ == "__main__":
 
     sim = Simulation(group_options, 1000)
     sim.run()
+    

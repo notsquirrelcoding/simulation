@@ -108,7 +108,11 @@ class Group:
 
     def infect_step(self) -> bool:
         """This function is a step in the simulation. All it does is update 
-        how many are infected, infect new `Unit`s, etc."""
+        how many are infected, infect new `Unit`s, etc. If this function returns
+        `True` then all units are dead."""
+
+        if self.nothing_pdf():
+            return False
 
         # Loop through the (intermediate) recovering units
         vertex: UnitType
@@ -116,14 +120,15 @@ class Group:
             if vertex["state"] != UnitState.INTERMEDIATE:
                 continue
             if death_pdf(vertex["resistance_level"]):
-                print("killed vertex.")
                 self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
                 self.dead_pop += 1
+            else:
+                # Bug to fix: for some reason the infected_pop sometimes exceeds the actual population.
+                self._graph.vs[vertex.index]["state"] = UnitState.HEALTHY # type: ignore
+                self.infected_pop -= 1
 
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
-            if self.nothing_pdf():
-                continue
             source_vertex: UnitType = self._graph.vs[edge.source].attributes()
             target_vertex: UnitType = self._graph.vs[edge.target].attributes()
 
