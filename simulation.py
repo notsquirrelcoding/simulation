@@ -1,5 +1,6 @@
 """A module containing `Simulation` class."""
 from group import GroupConfig, Group
+from unit import UnitType
 
 class Simulation:
     """The `Simulation` class that manages all the groups and
@@ -43,3 +44,4 @@ class Simulation:
         group: Group
         for group in self.groups:
             print(group.summarize())
+

@@ -2,6 +2,7 @@
 import random
 from typing import Callable, TypedDict, Type
 from igraph import Graph, Vertex
+from defaults import death_pdf
 from unit import UnitType, UnitState
 
 class GroupSummray(TypedDict):
@@ -10,6 +11,7 @@ class GroupSummray(TypedDict):
     """
     amount_dead: int
     amount_alive: int
+    amount_infected: int
     total_pop: int
     group_id: int
 
@@ -21,10 +23,10 @@ class GroupConfig(TypedDict):
     group_id: int
     control_units: list[UnitType]
     control_edges: list[tuple[int, int]]
-    infect_pdf: Callable[[UnitType, UnitType], float]
-    resistance_pdf: Callable[[], float]
-    contaigability_pdf: Callable[[], float]
-    edge_pdf: Callable[[int], int]
+    infect_pdf: Callable[[UnitType, UnitType], bool]
+    resistance_gen: Callable[[], float]
+    contaigability_gen: Callable[[], float]
+    edge_gen: Callable[[int], int]
     nothing_pdf: Callable[[], bool]
     death_pdf: Callable[[float], bool]
 
@@ -57,12 +59,12 @@ class Group:
         # assuming that it's not a control group
         if not is_control_group:
             for _ in range(group_pop):
-                contagability_levels.append(config["contaigability_pdf"]())
+                contagability_levels.append(config["contaigability_gen"]())
 
         resistances = []
         if not is_control_group:
             for _ in range(group_pop):
-                resistances.append(config["resistance_pdf"]())
+                resistances.append(config["resistance_gen"]())
         # Add the states
         states = []
         if not is_control_group:
@@ -79,7 +81,7 @@ class Group:
         # Randomly add all the edges if it's not a control group
         if not is_control_group:
             for i in range(group_pop):
-                amount_of_neighbors = config["edge_pdf"](group_pop)
+                amount_of_neighbors = config["edge_gen"](group_pop)
                 for _ in range(amount_of_neighbors):
                     edges.append((i, random.randint(1, group_pop - 1)))
         # Add all the control edges
@@ -91,13 +93,14 @@ class Group:
         self._graph.add_edges(connections)
 
         # Set the the parameters
-        self.amount_dead = 0
+        self.infected_pop = 0
+        self.dead_pop = 0
         self.total_pop = group_pop
         self._is_wiped = False
         self.group_id = config["group_id"]
         self.infect_pdf = config["infect_pdf"]
         self.nothing_pdf = config["nothing_pdf"]
-        self.edge_pdf = config["edge_pdf"]
+        self.edge_gen = config["edge_gen"]
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
@@ -107,11 +110,15 @@ class Group:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc."""
 
-        # Loop through the recovering
+        # Loop through the (intermediate) recovering units
         vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
-            if vertex["state"] == UnitState.HEALTHY:
+            if vertex["state"] != UnitState.INTERMEDIATE:
                 continue
+            if death_pdf(vertex["resistance_level"]):
+                print("killed vertex.")
+                self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
+                self.dead_pop += 1
 
         # Loop through all the connections/edges
         for edge in self._graph.es:  # type: ignore
@@ -126,10 +133,10 @@ class Group:
             if will_infect and source_vertex["state"] == UnitState.HEALTHY:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
-                self.amount_dead += 1
+                self.infected_pop += 1
 
             # Finally check if all units are dead.
-            if self.amount_dead >= self.total_pop:
+            if self.dead_pop >= self.total_pop:
                 print(f"Group {self.group_id} wiped out.")
                 self._is_wiped = True
                 return True
@@ -161,7 +168,7 @@ class Group:
         """A method that handles recieving a new unit."""
         edges = []
         new_id = self._graph.vcount()
-        amount_of_neighbors = self.edge_pdf(self.total_pop - self.amount_dead)
+        amount_of_neighbors = self.edge_gen(self.total_pop - self.dead_pop)
         for _ in range(amount_of_neighbors):
             edges.append((new_id, random.randint(0, self.total_pop - 1)))
 
@@ -187,8 +194,9 @@ class Group:
         """
 
         return {
-            "amount_dead": self.amount_dead,
-            "amount_alive": self.total_pop - self.amount_dead,
+            "amount_dead": self.dead_pop,
+            "amount_alive": self.total_pop - self.dead_pop,
+            "amount_infected": self.infected_pop,
             "total_pop": self.total_pop,
             "group_id": self.group_id
         }
