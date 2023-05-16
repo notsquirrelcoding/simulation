@@ -15,9 +15,10 @@ def infect_pdf(source: UnitType, target: UnitType) -> bool: # type: ignore
     one another."""
     if target["state"] == UnitState.DEAD:
         return False
+    if source["state"] == UnitState.HEALTHY:
+        return False
 
-    f_1 = source["resistance_level"] * target["contagability_level"]
-    return pdf(f_1)
+    return pdf(target["resistance_level"] < source["contagability_level"])
 
 def normal_random() -> float:
     """A function that returns a random number """
