@@ -30,6 +30,7 @@ class Simulation:
             self.time += 1
 
     def group_step(self, group: Group):
+        """A group step."""
         if not group.is_wiped():
             # infect_step() returns true if the group dies out
             if group.infect_step():

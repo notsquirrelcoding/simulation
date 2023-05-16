@@ -40,7 +40,8 @@ if __name__ == "__main__":
             "resistance_gen": defaults.resistance,
             "contaigability_gen": defaults.contaigability,
             "nothing_pdf": defaults.nothingness_pdf,
-            "death_pdf": defaults.death_pdf
+            "death_pdf": defaults.death_pdf,
+            "initial_state_gen": defaults.default_initial_state_gen
         }
         group_options.append(options)
 
@@ -54,9 +55,9 @@ if __name__ == "__main__":
         "resistance_gen": defaults.resistance,
         "contaigability_gen": defaults.contaigability,
         "nothing_pdf": defaults.nothingness_pdf,
-        "death_pdf": defaults.death_pdf
+        "death_pdf": defaults.death_pdf,
+        "initial_state_gen": defaults.default_initial_state_gen
     })
 
     sim = Simulation(group_options, 1000)
     sim.run()
-    

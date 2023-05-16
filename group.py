@@ -1,6 +1,6 @@
 """A module holding the `Group` class."""
 import random
-from typing import Callable, Tuple, TypedDict, Type
+from typing import Callable, List, Tuple, TypedDict, Type
 from igraph import Graph, Vertex
 from defaults import death_pdf
 from unit import UnitType, UnitState
@@ -29,6 +29,7 @@ class GroupConfig(TypedDict):
     edge_gen: Callable[[int], int]
     nothing_pdf: Callable[[], bool]
     death_pdf: Callable[[float], bool]
+    initial_state_gen: Callable[[int], Tuple[int, List[UnitState]]]
 
 class Group:
     """A `Group` class. This class groups `Unit`s together and relates them
@@ -45,14 +46,20 @@ class Group:
         contagability_levels = []
         resistances = []
         states = []
+        infected_pop = 0
         # Set the random contagability levels, using the random resistance function
         # assuming that it's not a control group
         if not is_control_group:
             for _ in range(group_pop):
                 contagability_levels.append(config["contaigability_gen"]())
                 resistances.append(config["resistance_gen"]())
-                states.append(UnitState.HEALTHY)
 
+            # Set the states and initial population
+            (initial_infected_pop, initial_states) = config["initial_state_gen"](group_pop)
+            states = initial_states
+            infected_pop = initial_infected_pop
+
+        # Set up config if this is a control gorup
         for unit in config["control_units"]:
             states.append(unit["state"])
             resistances.append(unit["resistance_level"])
@@ -76,7 +83,7 @@ class Group:
         self._graph.add_edges(connections)
 
         # Set the the parameters
-        self.infected_pop = 0
+        self.infected_pop = infected_pop
         self.dead_pop = 0
         self.total_pop = group_pop
         self._is_wiped = False
@@ -113,7 +120,6 @@ class Group:
 
         # Finally check if all units are dead.
         return self.is_wiped()
-
 
     def _emit_unit(self, unit: UnitType) -> UnitType:
         """A group that emits a unit so that it can be transferred to another group"""
@@ -183,15 +189,16 @@ class Group:
         return False
 
     def _step_through_intermediate(self):
-        """A function that steps through the intermediate units"""
+        """A function that steps handles the intermediate units. This function decides whether they
+        recover or die."""
         vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
             if vertex["state"] != UnitState.INTERMEDIATE:
                 continue
             if death_pdf(vertex["resistance_level"]):
-                print("Unit dead")
                 self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
                 self.dead_pop += 1
+                self.infected_pop -= 1
             else:
                 self._graph.vs[vertex.index]["state"] = UnitState.HEALTHY # type: ignore
                 self.infected_pop -= 1
@@ -201,7 +208,7 @@ class Group:
         source_vertex: UnitType = self._graph.vs[edge.source].attributes()
         target_vertex: UnitType = self._graph.vs[edge.target].attributes()
         return (source_vertex, target_vertex)
-    
+
     def _is_control_group(self, config: GroupConfig) -> bool:
         is_control_group = False
 
@@ -217,3 +224,4 @@ class Group:
             raise TypeError(
                 "There exist control group edges for nonexistent units.")
         return is_control_group
+    

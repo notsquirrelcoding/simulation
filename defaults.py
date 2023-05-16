@@ -1,5 +1,6 @@
 """A module containing all the default functions"""
 import random
+from typing import List, Tuple
 from unit import UnitType, UnitState
 Edges = list[tuple[int, int]]
 
@@ -18,7 +19,7 @@ def infect_pdf(source: UnitType, target: UnitType) -> bool: # type: ignore
     if source["state"] == UnitState.HEALTHY:
         return False
 
-    return pdf(target["resistance_level"] < source["contagability_level"])
+    return target["resistance_level"] < source["contagability_level"]
 
 def normal_random() -> float:
     """A function that returns a random number """
@@ -43,3 +44,16 @@ def nothingness_pdf() -> bool:
 def death_pdf(res: float) -> bool:
     """A function that determines whether somebody in recovering state will die."""
     return res > random.random()
+
+def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
+    """A function that randomly returns a unit state."""
+    state_list = []
+    infected_pop = 0
+    for _ in range(group_pop):
+        random_int = random.randint(0, 2)      
+        if random_int == 0:
+            state_list.append(UnitState.INTERMEDIATE)
+            infected_pop += 1
+        else:
+            state_list.append(UnitState.HEALTHY)
+    return (infected_pop, state_list)
