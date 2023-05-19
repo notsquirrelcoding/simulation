@@ -83,26 +83,28 @@ class Group:
         self._graph.add_edges(connections)
 
         # Set the the parameters
-        self.infected_pop = infected_pop
-        self.dead_pop = 0
-        self.total_pop = group_pop
+        self._infected_pop = infected_pop
+        self._dead_pop = 0
+        self._total_pop = group_pop
         self._is_wiped = False
-        self.group_id = config["group_id"]
-        self.infect_pdf = config["infect_pdf"]
-        self.nothing_pdf = config["nothing_pdf"]
-        self.edge_gen = config["edge_gen"]
+        self._is_free = False
+        self._group_id = config["group_id"]
+        self._infect_pdf = config["infect_pdf"]
+        self._nothing_pdf = config["nothing_pdf"]
+        self._edge_gen = config["edge_gen"]
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
 
-    def infect_step(self) -> bool:
+    def infect_step(self) -> Tuple[bool, bool]:
         """This function is a step in the simulation. All it does is update 
-        how many are infected, infect new `Unit`s, etc. If this function returns
-        `True` then all units are dead."""
+        how many are infected, infect new `Unit`s, etc. It returns a tuple
+        of booleans. The first one represents if the group is wiped and
+        the second represents if the group is free."""
 
-        if self.nothing_pdf():
-            return False
+        if self._nothing_pdf():
+            return (False, False)
 
         self._step_through_intermediate()
 
@@ -111,15 +113,15 @@ class Group:
             (source_vertex, target_vertex) = self._get_vertices(edge)
 
             # The probability that a contaigon will occur.
-            will_infect = self.infect_pdf(
+            will_infect = self._infect_pdf(
                 source_vertex, target_vertex)
             if will_infect:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
-                self.infected_pop += 1
+                self._infected_pop += 1
 
         # Finally check if all units are dead.
-        return self.is_wiped()
+        return (self.is_wiped(), self.is_free())
 
     def _emit_unit(self, unit: UnitType) -> UnitType:
         """A group that emits a unit so that it can be transferred to another group"""
@@ -146,9 +148,9 @@ class Group:
         """A method that handles recieving a new unit."""
         edges = []
         new_id = self._graph.vcount()
-        amount_of_neighbors = self.edge_gen(self.total_pop - self.dead_pop)
+        amount_of_neighbors = self._edge_gen(self._total_pop - self._dead_pop)
         for _ in range(amount_of_neighbors):
-            edges.append((new_id, random.randint(0, self.total_pop - 1)))
+            edges.append((new_id, random.randint(0, self._total_pop - 1)))
 
         self._graph.add_vertices(1)
 
@@ -172,19 +174,31 @@ class Group:
         """
 
         return {
-            "amount_dead": self.dead_pop,
-            "amount_alive": self.total_pop - self.dead_pop,
-            "amount_infected": self.infected_pop,
-            "total_pop": self.total_pop,
-            "group_id": self.group_id
+            "amount_dead": self._dead_pop,
+            "amount_alive": self._total_pop - self._dead_pop,
+            "amount_infected": self._infected_pop,
+            "total_pop": self._total_pop,
+            "group_id": self._group_id
         }
 
     def is_wiped(self) -> bool:
         """A function that returns a boolean indicating whether the
         group has been wiped out."""
-        if self.dead_pop >= self.total_pop:
-            print(f"Group {self.group_id} wiped out.")
+        if self._is_wiped:
+            return True
+        if self._dead_pop >= self._total_pop:
+            print(f"Group {self._group_id} wiped out.")
             self._is_wiped = True
+            self._infected_pop = 0
+            return True
+        return False
+
+    def is_free(self) -> bool:
+        """A function that returns a boolean indicating whether the
+        group has been freed of the virus. That is, there are no
+        more infected units."""
+        if self._infected_pop <= 0:
+            self._is_free = True
             return True
         return False
 
@@ -197,11 +211,11 @@ class Group:
                 continue
             if death_pdf(vertex["resistance_level"]):
                 self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
-                self.dead_pop += 1
-                self.infected_pop -= 1
+                self._dead_pop += 1
+                self._infected_pop -= 1
             else:
                 self._graph.vs[vertex.index]["state"] = UnitState.HEALTHY # type: ignore
-                self.infected_pop -= 1
+                self._infected_pop -= 1
 
     def _get_vertices(self, edge) -> Tuple[UnitType, UnitType]:
         """A helper function that gets the vertices given an edge"""
@@ -224,4 +238,11 @@ class Group:
             raise TypeError(
                 "There exist control group edges for nonexistent units.")
         return is_control_group
+
+    def _get_units(self) -> List[UnitType]:
+        units = []
+        vertex: UnitType
+        for vertex in self._graph.vs: # type: ignore
+            units.append(vertex)
+        return units
     

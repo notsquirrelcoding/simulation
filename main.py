@@ -28,7 +28,7 @@ if __name__ == "__main__":
         "state": UnitState.DEAD,
     })
 
-    for i in range(1, 10):
+    for i in range(1, 5):
 
         options: GroupConfig = {
             "group_id": i,
@@ -44,6 +44,8 @@ if __name__ == "__main__":
             "initial_state_gen": defaults.default_initial_state_gen
         }
         group_options.append(options)
+
+    g = Group(group_options[0])
 
     control_group = Group({
         "group_id": 1000,

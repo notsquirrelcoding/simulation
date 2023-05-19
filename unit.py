@@ -1,6 +1,7 @@
 """A module containing the `Unit` class."""
 from enum import Enum
 from typing import TypedDict
+from igraph import Vertex
 
 class UnitState(Enum):
     """
@@ -9,6 +10,7 @@ class UnitState(Enum):
     DEAD = 1
     INTERMEDIATE = 2
     HEALTHY = 3
+
 
 class UnitType(TypedDict):
     """A type holding all the attributes of a `Unit` type."""

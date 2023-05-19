@@ -50,8 +50,8 @@ def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
     state_list = []
     infected_pop = 0
     for _ in range(group_pop):
-        random_int = random.randint(0, 2)      
-        if random_int == 0:
+        random_int = random.randint(0, 1000)
+        if random_int != 0:
             state_list.append(UnitState.INTERMEDIATE)
             infected_pop += 1
         else:

@@ -1,6 +1,5 @@
 """A module containing `Simulation` class."""
 from group import GroupConfig, Group
-from unit import UnitType
 
 class Simulation:
     """The `Simulation` class that manages all the groups and
@@ -14,6 +13,7 @@ class Simulation:
         self.num_groups = len(group_configs)
         self.time = 0
         self.dead_groups = 0
+        self.free_groups = 0
         self.iterations = iterations
     def run(self):
         """Runs the simulation."""
@@ -24,6 +24,10 @@ class Simulation:
                 self.group_step(group)
                 # If all groups are dead just return
                 if self.dead_groups >= self.num_groups:
+                    print("All groups have been wiped out.")
+                    return
+                if self.free_groups >= self.num_groups:
+                    print("All groups are free of the virus.")
                     return
             self.display_data()
             print("==========================================================================")
@@ -31,10 +35,15 @@ class Simulation:
 
     def group_step(self, group: Group):
         """A group step."""
+        if group.is_free():
+            return
+
         if not group.is_wiped():
-            # infect_step() returns true if the group dies out
-            if group.infect_step():
+            (is_wiped, is_free) = group.infect_step()
+            if is_wiped:
                 self.dead_groups += 1
+            if is_free:
+                self.free_groups += 1
 
     def group_transfer(self):
         """A function that transfers a unit between groups"""
@@ -45,4 +54,3 @@ class Simulation:
         group: Group
         for group in self.groups:
             print(group.summarize())
-
