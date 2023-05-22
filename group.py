@@ -4,6 +4,7 @@ from typing import Callable, List, Tuple, TypedDict, Type
 from igraph import Graph, Vertex
 from defaults import death_pdf
 from unit import UnitType, UnitState
+from utils import gen_int_without_repeats
 
 class GroupSummray(TypedDict):
     """
@@ -14,6 +15,7 @@ class GroupSummray(TypedDict):
     amount_infected: int
     total_pop: int
     group_id: int
+
 
 class GroupConfig(TypedDict):
     """
@@ -30,6 +32,7 @@ class GroupConfig(TypedDict):
     nothing_pdf: Callable[[], bool]
     death_pdf: Callable[[float], bool]
     initial_state_gen: Callable[[int], Tuple[int, List[UnitState]]]
+
 
 class Group:
     """A `Group` class. This class groups `Unit`s together and relates them
@@ -55,7 +58,8 @@ class Group:
                 resistances.append(config["resistance_gen"]())
 
             # Set the states and initial population
-            (initial_infected_pop, initial_states) = config["initial_state_gen"](group_pop)
+            (initial_infected_pop,
+             initial_states) = config["initial_state_gen"](group_pop)
             states = initial_states
             infected_pop = initial_infected_pop
 
@@ -72,7 +76,8 @@ class Group:
             for i in range(group_pop):
                 amount_of_neighbors = config["edge_gen"](group_pop)
                 for _ in range(amount_of_neighbors):
-                    edges.append((i, random.randint(1, group_pop - 1)))
+                    other_vertex_id = gen_int_without_repeats(i, 1, group_pop - 1)
+                    edges.append((i, other_vertex_id))
 
         # Add all the control edges
         for edge in config["control_edges"]:
@@ -97,6 +102,8 @@ class Group:
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
 
+    # TODO: theres a bug where the infected population is greater than the actual living pop. It looks like this only happens when the living pop is 1.
+
     def infect_step(self) -> Tuple[bool, bool]:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc. It returns a tuple
@@ -120,6 +127,10 @@ class Group:
                 self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
                 self._infected_pop += 1
 
+        self._update_graph()
+
+        print(self._graph)
+
         # Finally check if all units are dead.
         return (self.is_wiped(), self.is_free())
 
@@ -141,7 +152,7 @@ class Group:
                 break
         if not chosen_vertex:
             raise TypeError("Vertex not found in group.")
-        self._graph.delete_vertices(chosen_vertex.index) # type: ignore
+        self._graph.delete_vertices(chosen_vertex.index)  # type: ignore
         return unit
 
     def _recieve_unit(self, unit: UnitType):
@@ -154,7 +165,8 @@ class Group:
 
         self._graph.add_vertices(1)
 
-        self._graph.vs["contagability_level"].append(unit["contagability_level"])
+        self._graph.vs["contagability_level"].append(
+            unit["contagability_level"])
         self._graph.vs["resistance_level"].append(unit["resistance_level"])
         self._graph.vs["state"].append(unit["state"])
         self._graph.add_edges(edges)
@@ -184,10 +196,7 @@ class Group:
     def is_wiped(self) -> bool:
         """A function that returns a boolean indicating whether the
         group has been wiped out."""
-        if self._is_wiped:
-            return True
         if self._dead_pop >= self._total_pop:
-            print(f"Group {self._group_id} wiped out.")
             self._is_wiped = True
             self._infected_pop = 0
             return True
@@ -197,10 +206,12 @@ class Group:
         """A function that returns a boolean indicating whether the
         group has been freed of the virus. That is, there are no
         more infected units."""
-        if self._infected_pop <= 0:
+        if self._infected_pop <= 0 and not self._is_wiped:
             self._is_free = True
             return True
         return False
+
+        # Bug: if two nodes are not connected then they cannot infect each other.
 
     def _step_through_intermediate(self):
         """A function that steps handles the intermediate units. This function decides whether they
@@ -242,7 +253,12 @@ class Group:
     def _get_units(self) -> List[UnitType]:
         units = []
         vertex: UnitType
-        for vertex in self._graph.vs: # type: ignore
+        for vertex in self._graph.vs:  # type: ignore
             units.append(vertex)
         return units
-    
+
+    def _update_graph(self):
+        """Deletes the vertices of dead units."""
+        dead_units = [
+            v.index for v in self._graph.vs if v["state"] == UnitState.DEAD] # type: ignore
+        self._graph.delete_vertices(dead_units)

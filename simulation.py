@@ -9,48 +9,55 @@ class Simulation:
         for config in group_configs:
             groups.append(Group(config))
 
-        self.groups = groups
-        self.num_groups = len(group_configs)
-        self.time = 0
-        self.dead_groups = 0
-        self.free_groups = 0
-        self.iterations = iterations
+        self._groups = groups
+        self._num_groups = len(group_configs)
+        self._time = 0
+        self._dead_groups = 0
+        self._free_groups = 0
+        self._finished_groups = 0
+        self._iterations = iterations
     def run(self):
         """Runs the simulation."""
-        for _ in range(0, self.iterations):
+        for _ in range(0, self._iterations):
             group: Group
-            for group in self.groups:
+            for group in self._groups:
                 # If the group is not wiped then step through
                 self.group_step(group)
                 # If all groups are dead just return
-                if self.dead_groups >= self.num_groups:
+                if self._dead_groups >= self._num_groups:
                     print("All groups have been wiped out.")
                     return
-                if self.free_groups >= self.num_groups:
+                if self._free_groups >= self._num_groups:
                     print("All groups are free of the virus.")
+                    return
+                if self._finished_groups >= self._num_groups:
+                    print("Simulation completed.")
                     return
             self.display_data()
             print("==========================================================================")
-            self.time += 1
+            self._time += 1
 
     def group_step(self, group: Group):
         """A group step."""
-        if group.is_free():
+        if group.is_free() or group.is_wiped():
             return
 
         if not group.is_wiped():
             (is_wiped, is_free) = group.infect_step()
             if is_wiped:
-                self.dead_groups += 1
+                print("group dead")
+                self._dead_groups += 1
+                self._finished_groups += 1
             if is_free:
-                self.free_groups += 1
+                print("group free")
+                self._free_groups += 1
+                self._finished_groups += 1
 
     def group_transfer(self):
         """A function that transfers a unit between groups"""
-        pass
     def display_data(self):
         """Displays the current data"""
-        print(f"t={self.time}")
+        print(f"t={self._time}")
         group: Group
-        for group in self.groups:
+        for group in self._groups:
             print(group.summarize())

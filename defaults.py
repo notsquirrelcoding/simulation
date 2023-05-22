@@ -1,5 +1,6 @@
 """A module containing all the default functions"""
 import random
+from secrets import randbits
 from typing import List, Tuple
 from unit import UnitType, UnitState
 Edges = list[tuple[int, int]]
@@ -39,11 +40,11 @@ def rand_int(maximum: int) -> int:
 
 def nothingness_pdf() -> bool:
     """PDF for nothing happening in a step in the simulation."""
-    return bool(random.getrandbits(1))
+    return False
 
-def death_pdf(res: float) -> bool:
+def death_pdf(_res: float) -> bool:
     """A function that determines whether somebody in recovering state will die."""
-    return res > random.random()
+    return bool(randbits(1))
 
 def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
     """A function that randomly returns a unit state."""
