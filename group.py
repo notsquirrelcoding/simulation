@@ -115,17 +115,7 @@ class Group:
 
         self._step_through_intermediate()
 
-        # Loop through all the connections/edges
-        for edge in self._graph.es:  # type: ignore
-            (source_vertex, target_vertex) = self._get_vertices(edge)
-
-            # The probability that a contaigon will occur.
-            will_infect = self._infect_pdf(
-                source_vertex, target_vertex)
-            if will_infect:
-                # Set the infected attribute on the target edge to True.
-                self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
-                self._infected_pop += 1
+        self._loop()
 
         self._update_graph()
 
@@ -219,6 +209,7 @@ class Group:
         vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
             if vertex["state"] != UnitState.INTERMEDIATE:
+                print(f"Vertex in group {self._group_id} is healthy.")
                 continue
             if death_pdf(vertex["resistance_level"]):
                 self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
@@ -262,3 +253,17 @@ class Group:
         dead_units = [
             v.index for v in self._graph.vs if v["state"] == UnitState.DEAD] # type: ignore
         self._graph.delete_vertices(dead_units)
+
+    def _loop(self):
+        """Loops through every connection to progress the simulation."""
+        # Loop through all the connections/edges
+        for edge in self._graph.es:  # type: ignore
+            (source_vertex, target_vertex) = self._get_vertices(edge)
+
+            # The probability that a contaigon will occur.
+            will_infect = self._infect_pdf(
+                source_vertex, target_vertex)
+            if will_infect:
+                # Set the infected attribute on the target edge to True.
+                self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
+                self._infected_pop += 1
