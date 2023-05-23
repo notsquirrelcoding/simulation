@@ -42,16 +42,15 @@ class Simulation:
         if group.is_free() or group.is_wiped():
             return
 
-        if not group.is_wiped():
-            (is_wiped, is_free) = group.infect_step()
-            if is_wiped:
-                print("group dead")
-                self._dead_groups += 1
-                self._finished_groups += 1
-            if is_free:
-                print("group free")
-                self._free_groups += 1
-                self._finished_groups += 1
+        (is_wiped, is_free) = group.infect_step()
+        if is_wiped:
+            print("group dead")
+            self._dead_groups += 1
+            self._finished_groups += 1
+        if is_free:
+            print("group free")
+            self._free_groups += 1
+            self._finished_groups += 1
 
     def group_transfer(self):
         """A function that transfers a unit between groups"""

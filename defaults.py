@@ -15,7 +15,7 @@ def pdf(level: float) -> bool:
 def infect_pdf(source: UnitType, target: UnitType) -> bool: # type: ignore
     """A default function for determining whether two units will infect
     one another."""
-    if target["state"] == UnitState.DEAD:
+    if target["state"] != UnitState.HEALTHY:
         return False
     if source["state"] == UnitState.HEALTHY:
         return False
@@ -28,7 +28,7 @@ def normal_random() -> float:
 
 def resistance() -> float:
     """A function returning the resistance"""
-    return random.normalvariate(0.5, 0.01)
+    return random.normalvariate(0.9, 0.01)
 
 def contaigability() -> float:
     """A function returning the contaigability"""
@@ -40,19 +40,23 @@ def rand_int(maximum: int) -> int:
 
 def nothingness_pdf() -> bool:
     """PDF for nothing happening in a step in the simulation."""
-    return False
+    return bool(random.getrandbits(1))
 
 def death_pdf(_res: float) -> bool:
     """A function that determines whether somebody in recovering state will die."""
-    return bool(randbits(1))
+    return one_in_n_prbl(10)
+
+def one_in_n_prbl(n: int) -> bool:
+    """Returns the probability of 1 in n things."""
+    random_int = random.randint(1,n)
+    return random_int == 1
 
 def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
     """A function that randomly returns a unit state."""
     state_list = []
     infected_pop = 0
     for _ in range(group_pop):
-        random_int = random.randint(0, 1000)
-        if random_int != 0:
+        if one_in_n_prbl(4):
             state_list.append(UnitState.INTERMEDIATE)
             infected_pop += 1
         else:

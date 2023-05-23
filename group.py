@@ -66,9 +66,10 @@ class Group:
         # Set up config if this is a control gorup
         for unit in config["control_units"]:
             states.append(unit["state"])
+            if unit["state"] == UnitState.INTERMEDIATE:
+                infected_pop += 1
             resistances.append(unit["resistance_level"])
             contagability_levels.append(unit["contagability_level"])
-
         edges = []
 
         # Randomly add all the edges if it's not a control group
@@ -102,7 +103,7 @@ class Group:
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
 
-    # TODO: theres a bug where the infected population is greater than the actual living pop. It looks like this only happens when the living pop is 1.
+        # TODO: Theres a bug where no group gets freed or dies when infected_pop == 0
 
     def infect_step(self) -> Tuple[bool, bool]:
         """This function is a step in the simulation. All it does is update 
@@ -119,7 +120,8 @@ class Group:
 
         self._update_graph()
 
-        print(self._graph)
+        # THIS PRINT STATEMENT DOES NOT APPEAR
+        print(f"IS SELF FREE: {self.is_free()}")
 
         # Finally check if all units are dead.
         return (self.is_wiped(), self.is_free())
@@ -196,6 +198,7 @@ class Group:
         """A function that returns a boolean indicating whether the
         group has been freed of the virus. That is, there are no
         more infected units."""
+        print(f"Infected pop of group {self._group_id}: {self._infected_pop}")
         if self._infected_pop <= 0 and not self._is_wiped:
             self._is_free = True
             return True
@@ -208,16 +211,14 @@ class Group:
         recover or die."""
         vertex: UnitType
         for vertex in self._graph.vs:  # type: ignore
-            if vertex["state"] != UnitState.INTERMEDIATE:
-                print(f"Vertex in group {self._group_id} is healthy.")
+            if vertex["state"] != UnitState.INTERMEDIATE or self._nothing_pdf():
                 continue
             if death_pdf(vertex["resistance_level"]):
                 self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
                 self._dead_pop += 1
-                self._infected_pop -= 1
             else:
                 self._graph.vs[vertex.index]["state"] = UnitState.HEALTHY # type: ignore
-                self._infected_pop -= 1
+            self._infected_pop -= 1
 
     def _get_vertices(self, edge) -> Tuple[UnitType, UnitType]:
         """A helper function that gets the vertices given an edge"""

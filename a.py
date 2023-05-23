@@ -1,3 +1,3 @@
 import random
 
-print(random.normalvariate(0.5, 0.2))
+print(bool(random.randbytes(1)))
