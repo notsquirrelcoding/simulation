@@ -15,6 +15,8 @@ class GroupSummray(TypedDict):
     amount_infected: int
     total_pop: int
     group_id: int
+    is_dead: bool
+    is_freed: bool
 
 
 class GroupConfig(TypedDict):
@@ -103,7 +105,7 @@ class Group:
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
 
-        # TODO: Theres a bug where no group gets freed or dies when infected_pop == 0
+    # TODO: Theres a bug where no group gets freed or dies when infected_pop == 0
 
     def infect_step(self) -> Tuple[bool, bool]:
         """This function is a step in the simulation. All it does is update 
@@ -119,9 +121,6 @@ class Group:
         self._loop()
 
         self._update_graph()
-
-        # THIS PRINT STATEMENT DOES NOT APPEAR
-        print(f"IS SELF FREE: {self.is_free()}")
 
         # Finally check if all units are dead.
         return (self.is_wiped(), self.is_free())
@@ -182,12 +181,16 @@ class Group:
             "amount_alive": self._total_pop - self._dead_pop,
             "amount_infected": self._infected_pop,
             "total_pop": self._total_pop,
-            "group_id": self._group_id
+            "group_id": self._group_id,
+            "is_freed": self._is_free,
+            "is_dead": self._is_wiped
         }
 
     def is_wiped(self) -> bool:
         """A function that returns a boolean indicating whether the
         group has been wiped out."""
+        if self._is_wiped:
+            return True
         if self._dead_pop >= self._total_pop:
             self._is_wiped = True
             self._infected_pop = 0
@@ -198,7 +201,8 @@ class Group:
         """A function that returns a boolean indicating whether the
         group has been freed of the virus. That is, there are no
         more infected units."""
-        print(f"Infected pop of group {self._group_id}: {self._infected_pop}")
+        if self._is_free:
+            return True
         if self._infected_pop <= 0 and not self._is_wiped:
             self._is_free = True
             return True

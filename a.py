@@ -1,3 +1,3 @@
 import random
 
-print(bool(random.randbytes(1)))
+print(bool(random.getrandbits(1)))
