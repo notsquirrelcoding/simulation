@@ -44,7 +44,7 @@ def nothingness_pdf() -> bool:
 
 def death_pdf(_res: float) -> bool:
     """A function that determines whether somebody in recovering state will die."""
-    return not one_in_n_prbl(10)
+    return one_in_n_prbl(2)
 
 def one_in_n_prbl(n: int) -> bool:
     """Returns the probability of 1 in n things."""
@@ -56,7 +56,7 @@ def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
     state_list = []
     infected_pop = 0
     for _ in range(group_pop):
-        if one_in_n_prbl(4):
+        if one_in_n_prbl(2):
             state_list.append(UnitState.INTERMEDIATE)
             infected_pop += 1
         else:

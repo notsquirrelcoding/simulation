@@ -21,10 +21,9 @@ class Simulation:
 
     def run(self):
         """Runs the simulation."""
-        print(self._groups[0].summarize())
         for _ in range(0, self._iterations):
-            # print(
-                # "==========================================================================")
+            print(
+                "==========================================================================")
             group: Group
             for group in self._groups:
                 # If the group is not wiped then step through
@@ -39,11 +38,8 @@ class Simulation:
                 if self._finished_groups >= self._num_groups:
                     print("Simulation completed.")
                     return
-            # self.display_data()
-            print(self._time)
+            self.display_data()
             self._time += 1
-
-        print(self._groups[0].summarize())
 
     def group_step(self, group: Group):
         """A group step."""
@@ -56,7 +52,6 @@ class Simulation:
             self._dead_groups += 1
             self._finished_groups += 1
         if is_free:
-            print("group free")
             self._free_groups += 1
             self._finished_groups += 1
 
@@ -68,4 +63,11 @@ class Simulation:
         print(f"t={self._time}")
         group: Group
         for group in self._groups:
-            print(group.summarize())
+            summary = group.summarize()
+            (amount_dead, amount_alive,
+             amount_infected, total_pop,
+             is_freed, is_dead) = (summary["amount_dead"], summary["amount_alive"],
+                                   summary["amount_infected"], summary["total_pop"],
+                                   summary["is_freed"], summary["is_dead"])
+            print(
+                f"Unit {group.get_id()} \t Dead: {amount_dead} \t Alive: {amount_alive} \t Infected: {amount_infected} \t Total: {total_pop} \t Dead: {is_dead} \t Free: {is_freed}")

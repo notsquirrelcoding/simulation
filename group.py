@@ -274,3 +274,8 @@ class Group:
                 # Set the infected attribute on the target edge to True.
                 self._graph.vs[edge.target]["state"] = UnitState.INTERMEDIATE
                 self._infected_pop += 1
+
+    def get_id(self) -> int:
+        """Gets the groups ID."""
+        return self._group_id
+    
