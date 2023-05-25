@@ -1,0 +1,3 @@
+{'amount_dead': 0, 'amount_alive': 7, 'amount_infected': 0, 'total_pop': 7, 'group_id': 1, 'is_freed': False, 'is_dead': False}
+
+{'amount_dead': 0, 'amount_alive': 7, 'amount_infected': 0, 'total_pop': 7, 'group_id': 1, 'is_freed': True, 'is_dead': False}

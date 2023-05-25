@@ -42,6 +42,8 @@ class Group:
 
     def __init__(self, config: GroupConfig) -> None:
         group_pop = config["group_pop"]
+
+
         self._graph = Graph(n=group_pop)
 
         # Check if group is a control one and check if the

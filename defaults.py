@@ -20,7 +20,7 @@ def infect_pdf(source: UnitType, target: UnitType) -> bool: # type: ignore
     if source["state"] == UnitState.HEALTHY:
         return False
 
-    return target["resistance_level"] < source["contagability_level"]
+    return one_in_n_prbl(3)
 
 def normal_random() -> float:
     """A function that returns a random number """
@@ -44,7 +44,7 @@ def nothingness_pdf() -> bool:
 
 def death_pdf(_res: float) -> bool:
     """A function that determines whether somebody in recovering state will die."""
-    return one_in_n_prbl(10)
+    return not one_in_n_prbl(10)
 
 def one_in_n_prbl(n: int) -> bool:
     """Returns the probability of 1 in n things."""
@@ -61,4 +61,8 @@ def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
             infected_pop += 1
         else:
             state_list.append(UnitState.HEALTHY)
+
+    if state_list.count(UnitState.INTERMEDIATE) == 0:
+        return default_initial_state_gen(group_pop)
+
     return (infected_pop, state_list)

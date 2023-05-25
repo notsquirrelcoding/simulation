@@ -21,7 +21,10 @@ class Simulation:
 
     def run(self):
         """Runs the simulation."""
+        print(self._groups[0].summarize())
         for _ in range(0, self._iterations):
+            # print(
+                # "==========================================================================")
             group: Group
             for group in self._groups:
                 # If the group is not wiped then step through
@@ -36,20 +39,20 @@ class Simulation:
                 if self._finished_groups >= self._num_groups:
                     print("Simulation completed.")
                     return
-            self.display_data()
-            print(
-                "==========================================================================")
+            # self.display_data()
+            print(self._time)
             self._time += 1
+
+        print(self._groups[0].summarize())
 
     def group_step(self, group: Group):
         """A group step."""
-        print(f"Dead groups: {self._dead_groups} \t Freed groups: {self._free_groups} \t Finished groups: {self._finished_groups} \t Total groups: {self._num_groups}")
+
         if group.is_free() or group.is_wiped():
             return
 
         (is_wiped, is_free) = group.infect_step()
         if is_wiped:
-            print("group dead")
             self._dead_groups += 1
             self._finished_groups += 1
         if is_free:
