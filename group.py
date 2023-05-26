@@ -6,6 +6,7 @@ from defaults import death_pdf
 from unit import UnitType, UnitState
 from utils import gen_int_without_repeats
 
+
 class GroupSummray(TypedDict):
     """
     A summary about a `Group`.
@@ -23,8 +24,8 @@ class GroupConfig(TypedDict):
     """
     A doct containing the configuration for a `Group` type.
     """
-    group_pop: int
-    group_id: int
+    pop: int
+    id: int
     control_units: list[UnitType]
     control_edges: list[tuple[int, int]]
     infect_pdf: Callable[[UnitType, UnitType], bool]
@@ -34,6 +35,9 @@ class GroupConfig(TypedDict):
     nothing_pdf: Callable[[], bool]
     death_pdf: Callable[[float], bool]
     initial_state_gen: Callable[[int], Tuple[int, List[UnitState]]]
+    transfer_pdf: Callable[[], bool]
+    recieve_pdf: Callable[[UnitType], bool]
+    popularity_constant: float
 
 
 class Group:
@@ -41,10 +45,9 @@ class Group:
     using a graph data structure."""
 
     def __init__(self, config: GroupConfig) -> None:
-        group_pop = config["group_pop"]
-
-
+        group_pop = config["pop"]
         self._graph = Graph(n=group_pop)
+        
 
         # Check if group is a control one and check if the
         # amount of units matches the population
@@ -81,7 +84,8 @@ class Group:
             for i in range(group_pop):
                 amount_of_neighbors = config["edge_gen"](group_pop)
                 for _ in range(amount_of_neighbors):
-                    other_vertex_id = gen_int_without_repeats(i, 1, group_pop - 1)
+                    other_vertex_id = gen_int_without_repeats(
+                        i, 1, group_pop - 1)
                     edges.append((i, other_vertex_id))
 
         # Add all the control edges
@@ -98,25 +102,24 @@ class Group:
         self._total_pop = group_pop
         self._is_wiped = False
         self._is_free = False
-        self._group_id = config["group_id"]
+        self._group_id = config["id"]
         self._infect_pdf = config["infect_pdf"]
         self._nothing_pdf = config["nothing_pdf"]
         self._edge_gen = config["edge_gen"]
+        self._transfer_pdf = config["transfer_pdf"]
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
 
-    # TODO: Theres a bug where no group gets freed or dies when infected_pop == 0
-
-    def infect_step(self) -> Tuple[bool, bool]:
+    def infect_step(self) -> Tuple[bool, bool, bool]:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc. It returns a tuple
         of booleans. The first one represents if the group is wiped and
         the second represents if the group is free."""
 
         if self._nothing_pdf():
-            return (False, False)
+            return (False, False, False)
 
         self._step_through_intermediate()
 
@@ -125,9 +128,11 @@ class Group:
         self._update_graph()
 
         # Finally check if all units are dead.
-        return (self.is_wiped(), self.is_free())
+        return (self.is_wiped(), self.is_free(), self._transfer_pdf())
+
 
     def _emit_unit(self, unit: UnitType) -> UnitType:
+
         """A group that emits a unit so that it can be transferred to another group"""
         # Get the vertex ID of the unit
 
@@ -220,9 +225,11 @@ class Group:
             if vertex["state"] != UnitState.INTERMEDIATE or self._nothing_pdf():
                 continue
             if death_pdf(vertex["resistance_level"]):
+                # type: ignore
                 self._graph.vs[vertex.index]["state"] = UnitState.DEAD # type: ignore
                 self._dead_pop += 1
             else:
+                # type: ignore
                 self._graph.vs[vertex.index]["state"] = UnitState.HEALTHY # type: ignore
             self._infected_pop -= 1
 
@@ -236,10 +243,10 @@ class Group:
         is_control_group = False
 
         ctrl_units_len = len(config["control_units"])
-        if (ctrl_units_len == config["group_pop"] and
+        if (ctrl_units_len == config["pop"] and
                 ctrl_units_len > 0):
             is_control_group = True
-        elif (ctrl_units_len != config["group_pop"] and
+        elif (ctrl_units_len != config["pop"] and
               ctrl_units_len > 0):
             raise TypeError(
                 "Number of control units does not match population.")
@@ -258,7 +265,7 @@ class Group:
     def _update_graph(self):
         """Deletes the vertices of dead units."""
         dead_units = [
-            v.index for v in self._graph.vs if v["state"] == UnitState.DEAD] # type: ignore
+            v.index for v in self._graph.vs if v["state"] == UnitState.DEAD]  # type: ignore
         self._graph.delete_vertices(dead_units)
 
     def _loop(self):
@@ -278,4 +285,3 @@ class Group:
     def get_id(self) -> int:
         """Gets the groups ID."""
         return self._group_id
-    
