@@ -77,9 +77,24 @@ def default_initial_state_gen(group_pop: int) -> Tuple[int, List[UnitState]]:
 
 def group_transfer_pdf() -> bool:
     """This function determines when a group transfer will occur"""
-    return True
+    return bool(random.getrandbits(1))
 
 def group_recieve_pdf(unit: UnitType) -> bool:
     """This function determines the likelihood of a unit joining a group"""
-    return True
+    return unit["state"] != UnitState.HEALTHY
 
+def group_unit_emit_pdf(units: list[UnitType]) -> UnitType:
+    """A PDF determining which unit will be emitted next."""
+    selected_unit: UnitType = units[0]
+
+    for unit in units:
+        if unit["travel_prob"] > selected_unit["travel_prob"]:
+            selected_unit = unit
+    return selected_unit
+
+def travel_prob_gen(group_pop: int) -> List[int]:
+    """A function that determines the travel probabilities of each unit."""
+    travel_probs = []
+    for i in range(group_pop):
+        travel_probs.append(0.5)
+    return travel_probs

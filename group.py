@@ -37,7 +37,9 @@ class GroupConfig(TypedDict):
     initial_state_gen: Callable[[int], Tuple[int, List[UnitState]]]
     transfer_pdf: Callable[[], bool]
     recieve_pdf: Callable[[UnitType], bool]
+    group_unit_emit_pdf: Callable[[List[UnitType]], UnitType]
     popularity_constant: float
+    travel_prob_gen: Callable[[int], List[int]]
 
 
 class Group:
@@ -47,7 +49,6 @@ class Group:
     def __init__(self, config: GroupConfig) -> None:
         group_pop = config["pop"]
         self._graph = Graph(n=group_pop)
-        
 
         # Check if group is a control one and check if the
         # amount of units matches the population
@@ -56,6 +57,7 @@ class Group:
         contagability_levels = []
         resistances = []
         states = []
+        travel_probs = []
         infected_pop = 0
         # Set the random contagability levels, using the random resistance function
         # assuming that it's not a control group
@@ -63,11 +65,15 @@ class Group:
             for _ in range(group_pop):
                 contagability_levels.append(config["contaigability_gen"]())
                 resistances.append(config["resistance_gen"]())
-
             # Set the states and initial population
             (initial_infected_pop,
              initial_states) = config["initial_state_gen"](group_pop)
             states = initial_states
+
+            # TODO: Find a way to assign `config["travel_prob_gen"](group_pop)` to `travel_probs` such that it doesn't if it's a control group. In the same way that `states` is initialized.
+            # Currently implementing the functionality for group transfers.
+
+            travel_probs = config["travel_prob_gen"](group_pop)
             infected_pop = initial_infected_pop
 
         # Set up config if this is a control gorup
@@ -77,6 +83,7 @@ class Group:
                 infected_pop += 1
             resistances.append(unit["resistance_level"])
             contagability_levels.append(unit["contagability_level"])
+
         edges = []
 
         # Randomly add all the edges if it's not a control group
@@ -107,6 +114,7 @@ class Group:
         self._nothing_pdf = config["nothing_pdf"]
         self._edge_gen = config["edge_gen"]
         self._transfer_pdf = config["transfer_pdf"]
+        self._emit_pdf = config["group_unit_emit_pdf"]
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
@@ -131,7 +139,7 @@ class Group:
         return (self.is_wiped(), self.is_free(), self._transfer_pdf())
 
 
-    def _emit_unit(self, unit: UnitType) -> UnitType:
+    def emit_unit(self, unit: UnitType):
 
         """A group that emits a unit so that it can be transferred to another group"""
         # Get the vertex ID of the unit
@@ -151,9 +159,8 @@ class Group:
         if not chosen_vertex:
             raise TypeError("Vertex not found in group.")
         self._graph.delete_vertices(chosen_vertex.index)  # type: ignore
-        return unit
 
-    def _recieve_unit(self, unit: UnitType):
+    def recieve_unit(self, unit: UnitType):
         """A method that handles recieving a new unit."""
         edges = []
         new_id = self._graph.vcount()
@@ -285,3 +292,8 @@ class Group:
     def get_id(self) -> int:
         """Gets the groups ID."""
         return self._group_id
+
+    def get_unit(self) -> UnitType:
+        """A function that gets a unit based on the emit PDF."""
+        return self._emit_pdf(self._get_units())
+    

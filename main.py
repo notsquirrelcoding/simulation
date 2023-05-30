@@ -1,3 +1,5 @@
+"""a ,"""
+
 from random import randint
 from group import GroupConfig
 from simulation import Simulation
@@ -21,12 +23,11 @@ if __name__ == "__main__":
             "initial_state_gen": defaults.default_initial_state_gen,
             "transfer_pdf": defaults.group_transfer_pdf,
             "recieve_pdf": defaults.group_recieve_pdf,
-            "popularity_constant": 0.05
+            "group_unit_emit_pdf": defaults.group_unit_emit_pdf,
+            "popularity_constant": 1/19,
+            "travel_prob_gen": defaults.travel_prob_gen
         }
 
-        # TODO: Add another pdf for determining which unit is most likely to be emitted during a group transfer.
-
         group_options.append(options)
-
     sim = Simulation(group_options, 1000)
     sim.run()
