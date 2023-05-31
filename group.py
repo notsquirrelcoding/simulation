@@ -68,12 +68,12 @@ class Group:
             # Set the states and initial population
             (initial_infected_pop,
              initial_states) = config["initial_state_gen"](group_pop)
+            travel_probs = config["travel_prob_gen"](group_pop)
             states = initial_states
-
+        
             # TODO: Find a way to assign `config["travel_prob_gen"](group_pop)` to `travel_probs` such that it doesn't if it's a control group. In the same way that `states` is initialized.
             # Currently implementing the functionality for group transfers.
 
-            travel_probs = config["travel_prob_gen"](group_pop)
             infected_pop = initial_infected_pop
 
         # Set up config if this is a control gorup
@@ -296,4 +296,13 @@ class Group:
     def get_unit(self) -> UnitType:
         """A function that gets a unit based on the emit PDF."""
         return self._emit_pdf(self._get_units())
+
+
+
+def get_travel_probs(group_pop: int, is_control_group: bool, gen: Callable[[int], List[int]]) -> List[float]:
+    travel_probs = []
+    if not is_control_group:
+        return gen(group_pop)
     
+
+    return []

@@ -70,16 +70,15 @@ class Simulation:
             transferee = group.get_unit()
             destination_group = self._get_group_index(
                 self.group_transfer_end_gen(transferee))
-            self.group_transfer(group, self._groups[destination_group], transferee)
+            self.group_transfer(
+                group, self._groups[destination_group], transferee)
 
     def group_transfer_end_gen(self, unit: UnitType) -> int:
         """This function determines the ID of the group which the unit will transfer to."""
         while True:
             group: GroupConfig
             for group in self._groups:
-
                 # TODO: Fix this functionaltiy at some point. Make it so that every group is a subset in the set [0,1]. Then choose a random number. Then let the group be the subset that the random number landed in.
-
                 would_join = return_prob(group["popularity_constant"])
                 would_accept = group["recieve_pdf"](unit)
 
@@ -103,7 +102,9 @@ class Simulation:
                                    summary["amount_infected"], summary["total_pop"],
                                    summary["is_freed"], summary["is_dead"])
             print(
-                f"Unit {group.get_id()} \t Dead: {amount_dead} \t Alive: {amount_alive} \t Infected: {amount_infected} \t Total: {total_pop} \t Dead: {is_dead} \t Free: {is_freed}")
+                f"""Unit {group.get_id()} \t Dead: {amount_dead} \t 
+                Alive: {amount_alive} \t Infected: {amount_infected} \t 
+                Total: {total_pop} \t Dead: {is_dead} \t Free: {is_freed}""")
 
     def _get_group_index(self, group_id: int) -> int:
         """Gets a groups index given an ID"""
