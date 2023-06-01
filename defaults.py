@@ -85,16 +85,17 @@ def group_recieve_pdf(unit: UnitType) -> bool:
 
 def group_unit_emit_pdf(units: list[UnitType]) -> UnitType:
     """A PDF determining which unit will be emitted next."""
-    selected_unit: UnitType = units[0]
+    # Make sure to handle case for where group is emtpty . This results in an error.
+    selected_unit: UnitType = units[random.randint(0, len(units) - 1)]
 
     for unit in units:
         if unit["travel_prob"] > selected_unit["travel_prob"]:
             selected_unit = unit
     return selected_unit
 
-def travel_prob_gen(group_pop: int) -> List[int]:
+def travel_prob_gen(group_pop: int) -> List[float]:
     """A function that determines the travel probabilities of each unit."""
     travel_probs = []
-    for i in range(group_pop):
+    for _ in range(group_pop):
         travel_probs.append(0.5)
     return travel_probs

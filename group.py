@@ -39,7 +39,7 @@ class GroupConfig(TypedDict):
     recieve_pdf: Callable[[UnitType], bool]
     group_unit_emit_pdf: Callable[[List[UnitType]], UnitType]
     popularity_constant: float
-    travel_prob_gen: Callable[[int], List[int]]
+    travel_prob_gen: Callable[[int], List[float]]
 
 
 class Group:
@@ -70,15 +70,17 @@ class Group:
              initial_states) = config["initial_state_gen"](group_pop)
             travel_probs = config["travel_prob_gen"](group_pop)
             states = initial_states
-        
+
             # TODO: Find a way to assign `config["travel_prob_gen"](group_pop)` to `travel_probs` such that it doesn't if it's a control group. In the same way that `states` is initialized.
             # Currently implementing the functionality for group transfers.
 
             infected_pop = initial_infected_pop
 
+
         # Set up config if this is a control gorup
         for unit in config["control_units"]:
             states.append(unit["state"])
+            travel_probs.append(unit["travel_prob"])
             if unit["state"] == UnitState.INTERMEDIATE:
                 infected_pop += 1
             resistances.append(unit["resistance_level"])
@@ -115,16 +117,21 @@ class Group:
         self._edge_gen = config["edge_gen"]
         self._transfer_pdf = config["transfer_pdf"]
         self._emit_pdf = config["group_unit_emit_pdf"]
+        self._popularity_constant = config["popularity_constant"]
+        self._group_recieve_pdf = config["recieve_pdf"]
 
         self._graph.vs["contagability_level"] = contagability_levels
         self._graph.vs["resistance_level"] = resistances
         self._graph.vs["state"] = states
+        self._graph.vs["travel_prob"] = travel_probs
 
     def infect_step(self) -> Tuple[bool, bool, bool]:
         """This function is a step in the simulation. All it does is update 
         how many are infected, infect new `Unit`s, etc. It returns a tuple
         of booleans. The first one represents if the group is wiped and
         the second represents if the group is free."""
+
+        group_pop = self._total_pop
 
         if self._nothing_pdf():
             return (False, False, False)
@@ -135,8 +142,10 @@ class Group:
 
         self._update_graph()
 
+        will_emit = self._transfer_pdf() if group_pop > 0 else False
+
         # Finally check if all units are dead.
-        return (self.is_wiped(), self.is_free(), self._transfer_pdf())
+        return (self.is_wiped(), self.is_free(), will_emit)
 
 
     def emit_unit(self, unit: UnitType):
@@ -162,13 +171,16 @@ class Group:
 
     def recieve_unit(self, unit: UnitType):
         """A method that handles recieving a new unit."""
+        # x = unit["contagability_level"]
+        print(f"a:{unit}")
+
         edges = []
         new_id = self._graph.vcount()
+        self._graph.add_vertices(1)
         amount_of_neighbors = self._edge_gen(self._total_pop - self._dead_pop)
         for _ in range(amount_of_neighbors):
-            edges.append((new_id, random.randint(0, self._total_pop - 1)))
+            edges.append((new_id, random.randint(0, self._graph.vcount() - 1)))
 
-        self._graph.add_vertices(1)
 
         self._graph.vs["contagability_level"].append(
             unit["contagability_level"])
@@ -295,14 +307,23 @@ class Group:
 
     def get_unit(self) -> UnitType:
         """A function that gets a unit based on the emit PDF."""
-        return self._emit_pdf(self._get_units())
+        unit = self._emit_pdf(self._get_units())
+        print(f"RANDOM UNIT: {unit}")
+        return unit
+
+    def get_pop_constant(self) -> float:
+        """Gets the popularity constant of this group."""
+        return self._popularity_constant
+
+    def acceptance_pdf(self, unit: UnitType) -> bool:
+        """A wrapper funtion that determines if a unit will join a group."""
+        return self._group_recieve_pdf(unit)
 
 
-
-def get_travel_probs(group_pop: int, is_control_group: bool, gen: Callable[[int], List[int]]) -> List[float]:
-    travel_probs = []
-    if not is_control_group:
-        return gen(group_pop)
+# def get_travel_probs(group_pop: int, is_control_group: bool, gen: Callable[[int], List[int]]) -> List[float]:
+#     travel_probs = []
+#     if not is_control_group:
+#         return gen(group_pop)
     
 
-    return []
+#     return []

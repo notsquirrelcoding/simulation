@@ -76,16 +76,15 @@ class Simulation:
     def group_transfer_end_gen(self, unit: UnitType) -> int:
         """This function determines the ID of the group which the unit will transfer to."""
         while True:
-            group: GroupConfig
+            group: Group
             for group in self._groups:
                 # TODO: Fix this functionaltiy at some point. Make it so that every group is a subset in the set [0,1]. Then choose a random number. Then let the group be the subset that the random number landed in.
-                would_join = return_prob(group["popularity_constant"])
-                would_accept = group["recieve_pdf"](unit)
-
+                would_join = return_prob(group.get_pop_constant())
+                would_accept = group.acceptance_pdf(unit)
                 if would_join and would_accept:
-                    return group["id"]
+                    return group.get_id()
 
-    def group_transfer(self, start: Group, end: Group, transferee):
+    def group_transfer(self, start: Group, end: Group, transferee: UnitType):
         """A function that transfers a unit between groups"""
         start.emit_unit(transferee)
         end.recieve_unit(transferee)
@@ -108,8 +107,7 @@ class Simulation:
 
     def _get_group_index(self, group_id: int) -> int:
         """Gets a groups index given an ID"""
-        group: GroupConfig
         for index, group in enumerate(self._groups):
-            if group["id"] == group_id:
+            if group.get_id() == group_id:
                 return index
         return -1
