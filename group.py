@@ -149,7 +149,6 @@ class Group:
 
 
     def emit_unit(self, unit: UnitType):
-
         """A group that emits a unit so that it can be transferred to another group"""
         # Get the vertex ID of the unit
 
@@ -168,11 +167,11 @@ class Group:
         if not chosen_vertex:
             raise TypeError("Vertex not found in group.")
         self._graph.delete_vertices(chosen_vertex.index)  # type: ignore
+        print(f"\t\t\t\t {unit}")
 
     def recieve_unit(self, unit: UnitType):
         """A method that handles recieving a new unit."""
-        # x = unit["contagability_level"]
-        print(f"a:{unit}")
+        print(f"a: {unit}")
 
         edges = []
         new_id = self._graph.vcount()

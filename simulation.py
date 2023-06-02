@@ -68,10 +68,11 @@ class Simulation:
 
         if will_transfer:
             transferee = group.get_unit()
-            destination_group = self._get_group_index(
+            start_group_index = self._get_group_index(group.get_id())
+            destination_group_index = self._get_group_index(
                 self.group_transfer_end_gen(transferee))
             self.group_transfer(
-                group, self._groups[destination_group], transferee)
+                self._groups[start_group_index], self._groups[destination_group_index], transferee)
 
     def group_transfer_end_gen(self, unit: UnitType) -> int:
         """This function determines the ID of the group which the unit will transfer to."""
@@ -83,6 +84,9 @@ class Simulation:
                 would_accept = group.acceptance_pdf(unit)
                 if would_join and would_accept:
                     return group.get_id()
+
+
+    ##! TODO: Theres this bug where it says ValueError not defined blah blah blah. Keep trying to see why this happens using print statements on `transferee`.
 
     def group_transfer(self, start: Group, end: Group, transferee: UnitType):
         """A function that transfers a unit between groups"""
